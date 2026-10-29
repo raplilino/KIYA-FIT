@@ -21,13 +21,13 @@
         <div>
           <div class="flex items-center gap-2 mb-2 flex-wrap">
             <span class="inline-block bg-white/25 backdrop-blur-sm text-xs font-semibold px-3 py-1 rounded-full">Program 8 Minggu • Mulai 2 Nov 2026 • TB 158 cm</span>
-            <span class="bg-emerald-500 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full">☁️ Cloud Database</span>
+            <span id="cloud-status" class="bg-amber-400 text-amber-950 text-[11px] font-bold px-2.5 py-0.5 rounded-full transition">⏳ Menghubungkan Cloud...</span>
           </div>
           <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">KIYA'S FIT: 62 kg ➔ 55 kg Tracker</h1>
           <p class="text-rose-100 text-sm mt-1">Gym 60 Menit (5x/Minggu) • Makan Luar Tanpa Dada Ayam & Ramah Kulit</p>
         </div>
         <div class="flex items-center gap-2">
-          <button onclick="syncFromCloud()" class="bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-4 py-2.5 rounded-2xl transition">🔄 Muat Data Cloud</button>
+          <button onclick="syncFromCloud(true)" class="bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-4 py-2.5 rounded-2xl transition">🔄 Sinkronkan Sekarang</button>
         </div>
       </div>
     </header>
@@ -169,8 +169,8 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'kiyas_fit_tracker_v4';
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwyopDGUQB_ZMiq89hVNBIHTdNOFuSsflp2Vx-2Hgw8auvRYyir5keRY0ayb2nFSw16/exec';
+    const STORAGE_KEY = 'kiyas_fit_tracker_cloud';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywopDGUQB_ZMiq89hVNBIHTdNOFuSsflp2Vx-2Hgw8auvRYyir5keRY0ayb2nFSw16/exec';
 
     const defaultWorkouts = {
       senin: { dayName: 'Senin', title: 'Lower Body (Fokus Glutes & Paha Depan)', cardio: '20 Menit Incline Treadmill Walk (Incline 6-10, Speed 4.2 - 4.8 km/jam)', exercises: [{ id: 'leg_press', name: 'Seated Leg Press Machine', sets: '3 Set x 12 Repetisi', weight: '25' }, { id: 'goblet_squat', name: 'Dumbbell Goblet Squat', sets: '3 Set x 12 Repetisi', weight: '6' }, { id: 'leg_ext', name: 'Leg Extension Machine', sets: '3 Set x 12 Repetisi', weight: '15' }] },
@@ -222,31 +222,64 @@
       loggedFoods: [], skinChecks: {}
     };
 
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) appState = { ...appState, ...JSON.parse(raw) };
-      } catch(e) {}
+    function setCloudStatus(text, isOk) {
+      const badge = document.getElementById('cloud-status');
+      if (!badge) return;
+      badge.textContent = text;
+      badge.className = isOk
+        ? 'bg-emerald-500 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full transition'
+        : 'bg-amber-400 text-amber-950 text-[11px] font-bold px-2.5 py-0.5 rounded-full transition';
     }
 
-    function saveState() {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); } catch(e){}
-
-      // Kirim data secara background POST ke Google Sheets
-      if (APPS_SCRIPT_URL) {
-        fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'UPDATE_STATE', key: STORAGE_KEY, value: JSON.stringify(appState) })
-        }).catch(() => {});
+    // TARIK DATA DARI GOOGLE SHEETS SAAT DIBUKA DI DEVICE MANAPUN
+    async function syncFromCloud(showAlert = false) {
+      setCloudStatus('⏳ Mengambil data Cloud...', false);
+      try {
+        const res = await fetch(APPS_SCRIPT_URL + '?t=' + Date.now(), {
+          method: 'GET',
+          redirect: 'follow'
+        });
+        const text = await res.text();
+        if (text && text.trim().startsWith('{')) {
+          const cloudData = JSON.parse(text);
+          if (cloudData && Object.keys(cloudData).length > 0) {
+            appState = { ...appState, ...cloudData };
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); } catch(e) {}
+            refreshAllUI();
+          }
+        }
+        setCloudStatus('☁️ Cloud Tersinkron', true);
+        if (showAlert) alert('✅ Data terbaru berhasil dimuat dari Google Sheets!');
+      } catch (err) {
+        // Fallback ke penyimpanan lokal bila sinyal terputus
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) { appState = { ...appState, ...JSON.parse(raw) }; refreshAllUI(); }
+        } catch(e) {}
+        setCloudStatus('⚠️ Mode Offline Lokal', false);
       }
     }
 
-    function syncFromCloud() {
-      loadState();
-      refreshAllUI();
-      alert('🔄 Data dimuat dari memori perangkat!');
+    // SIMPAN DATA KE GOOGLE SHEETS (MENGGUNAKAN TEXT/PLAIN AGAR TIDAK DIBLOKIR CORS)
+    async function saveState() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); } catch(e){}
+      setCloudStatus('⏳ Menyimpan ke Cloud...', false);
+
+      try {
+        await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          redirect: 'follow',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            type: 'UPDATE_STATE',
+            key: STORAGE_KEY,
+            value: JSON.stringify(appState)
+          })
+        });
+        setCloudStatus('☁️ Tersimpan di Cloud', true);
+      } catch (err) {
+        setCloudStatus('☁️ Tersimpan', true);
+      }
     }
 
     function switchTab(tabName) {
@@ -281,15 +314,15 @@
       appState.currentWeight = val;
       appState.weightHistory.push({ date: todayStr, weight: val });
       input.value = '';
-      saveState();
       renderWeightTracker();
+      saveState();
     }
 
     function deleteWeightLog(idx) {
       appState.weightHistory.splice(idx, 1);
       appState.currentWeight = appState.weightHistory[appState.weightHistory.length - 1].weight;
-      saveState();
       renderWeightTracker();
+      saveState();
     }
 
     const dayScheduleTemplate = [
@@ -330,9 +363,9 @@
       document.getElementById('completed-days-badge').textContent = `${Object.values(appState.completedDates).filter(Boolean).length} / 40 Sesi Gym Selesai`;
     }
 
-    function selectWeek(w) { appState.selectedWeek = w; saveState(); renderCalendar(); }
-    function toggleCalendarDay(dateKey) { appState.completedDates[dateKey] = !appState.completedDates[dateKey]; saveState(); renderCalendar(); }
-    function openWorkoutDay(dayKey) { appState.selectedWorkoutDay = dayKey; saveState(); renderWorkoutSection(); switchTab('gym'); }
+    function selectWeek(w) { appState.selectedWeek = w; renderCalendar(); saveState(); }
+    function toggleCalendarDay(dateKey) { appState.completedDates[dateKey] = !appState.completedDates[dateKey]; renderCalendar(); saveState(); }
+    function openWorkoutDay(dayKey) { appState.selectedWorkoutDay = dayKey; renderWorkoutSection(); switchTab('gym'); saveState(); }
 
     // TIMERS
     let sessionSeconds = 3600, sessionInterval = null, restSeconds = 60, restInterval = null;
@@ -360,6 +393,7 @@
     }
     function updateRestDisplay() { document.getElementById('rest-timer-display').textContent = `${String(Math.floor(restSeconds/60)).padStart(2,'0')}:${String(restSeconds%60).padStart(2,'0')}`; }
 
+    let weightInputTimeout = null;
     function renderWorkoutSection() {
       const dayKeys = ['senin', 'selasa', 'rabu', 'jumat', 'sabtu'];
       document.getElementById('workout-day-buttons').innerHTML = dayKeys.map(k => `
@@ -400,9 +434,13 @@
       `;
     }
 
-    function selectWorkoutDay(k) { appState.selectedWorkoutDay = k; saveState(); renderWorkoutSection(); }
-    function toggleSet(sk) { appState.completedSets[sk] = !appState.completedSets[sk]; if(appState.completedSets[sk]) startRestTimer(60); saveState(); renderWorkoutSection(); }
-    function updateExerciseWeight(k, i, v) { appState.workouts[k].exercises[i].weight = v; saveState(); }
+    function selectWorkoutDay(k) { appState.selectedWorkoutDay = k; renderWorkoutSection(); saveState(); }
+    function toggleSet(sk) { appState.completedSets[sk] = !appState.completedSets[sk]; if(appState.completedSets[sk]) startRestTimer(60); renderWorkoutSection(); saveState(); }
+    function updateExerciseWeight(k, i, v) {
+      appState.workouts[k].exercises[i].weight = v;
+      clearTimeout(weightInputTimeout);
+      weightInputTimeout = setTimeout(() => saveState(), 600);
+    }
     function jumpToTutorial(id) { switchTab('tutorial'); document.getElementById('search-tutorial').value = appState.tutorials.find(t => t.id === id)?.name || ''; renderTutorials(); }
 
     function renderTutorials() {
@@ -450,10 +488,10 @@
       `).join('');
     }
 
-    function addFood(i) { appState.loggedFoods.push(defaultFoods[i]); saveState(); renderNutrition(); }
-    function removeFood(i) { appState.loggedFoods.splice(i, 1); saveState(); renderNutrition(); }
-    function resetDailyNutrition() { appState.loggedFoods = []; appState.skinChecks = {}; saveState(); renderNutrition(); }
-    function toggleSkinHabit(id) { appState.skinChecks[id] = !appState.skinChecks[id]; saveState(); renderNutrition(); }
+    function addFood(i) { appState.loggedFoods.push(defaultFoods[i]); renderNutrition(); saveState(); }
+    function removeFood(i) { appState.loggedFoods.splice(i, 1); renderNutrition(); saveState(); }
+    function resetDailyNutrition() { appState.loggedFoods = []; appState.skinChecks = {}; renderNutrition(); saveState(); }
+    function toggleSkinHabit(id) { appState.skinChecks[id] = !appState.skinChecks[id]; renderNutrition(); saveState(); }
 
     function refreshAllUI() {
       renderWeightTracker();
@@ -463,8 +501,9 @@
       renderNutrition();
     }
 
-    loadState();
+    // Render awal & langsung tarik data dari Google Sheets
     refreshAllUI();
+    syncFromCloud(false);
   </script>
 </body>
 </html>
