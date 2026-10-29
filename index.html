@@ -170,7 +170,7 @@
 
   <script>
     const STORAGE_KEY = 'kiyas_fit_tracker_cloud';
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywopDGUQB_ZMiq89hVNBIHTdNOFuSsflp2Vx-2Hgw8auvRYyir5keRY0ayb2nFSw16/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwasCavBij_b5CwoaLuL6Mr8K29CbVA8PxGfUdrrIUEUZKaerfvHBOqCptUUVkikW4/exec';
 
     const defaultWorkouts = {
       senin: { dayName: 'Senin', title: 'Lower Body (Fokus Glutes & Paha Depan)', cardio: '20 Menit Incline Treadmill Walk (Incline 6-10, Speed 4.2 - 4.8 km/jam)', exercises: [{ id: 'leg_press', name: 'Seated Leg Press Machine', sets: '3 Set x 12 Repetisi', weight: '25' }, { id: 'goblet_squat', name: 'Dumbbell Goblet Squat', sets: '3 Set x 12 Repetisi', weight: '6' }, { id: 'leg_ext', name: 'Leg Extension Machine', sets: '3 Set x 12 Repetisi', weight: '15' }] },
@@ -235,7 +235,7 @@
     async function syncFromCloud(showAlert = false) {
       setCloudStatus('⏳ Mengambil data Cloud...', false);
       try {
-        const res = await fetch(APPS_SCRIPT_URL + '?t=' + Date.now(), {
+        const res = await fetch(https://script.google.com/macros/s/AKfycbwasCavBij_b5CwoaLuL6Mr8K29CbVA8PxGfUdrrIUEUZKaerfvHBOqCptUUVkikW4/exec + '?t=' + Date.now(), {
           method: 'GET',
           redirect: 'follow'
         });
