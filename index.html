@@ -169,7 +169,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'kiyas_fit_tracker_cloud';
+    const STORAGE_KEY = 'kiyas_fit_tracker_cloud_v2';
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwasCavBij_b5CwoaLuL6Mr8K29CbVA8PxGfUdrrIUEUZKaerfvHBOqCptUUVkikW4/exec';
 
     const defaultWorkouts = {
@@ -222,6 +222,8 @@
       loggedFoods: [], skinChecks: {}
     };
 
+    let isFirstPush = true;
+
     function setCloudStatus(text, isOk) {
       const badge = document.getElementById('cloud-status');
       if (!badge) return;
@@ -231,54 +233,70 @@
         : 'bg-amber-400 text-amber-950 text-[11px] font-bold px-2.5 py-0.5 rounded-full transition';
     }
 
-    // TARIK DATA DARI GOOGLE SHEETS SAAT DIBUKA DI DEVICE MANAPUN
+    // TARIK DATA DARI GOOGLE SHEETS
     async function syncFromCloud(showAlert = false) {
       setCloudStatus('⏳ Mengambil data Cloud...', false);
       try {
-        const res = await fetch(https://script.google.com/macros/s/AKfycbwasCavBij_b5CwoaLuL6Mr8K29CbVA8PxGfUdrrIUEUZKaerfvHBOqCptUUVkikW4/exec + '?t=' + Date.now(), {
+        const response = await fetch(APPS_SCRIPT_URL + '?nocache=' + Date.now(), {
           method: 'GET',
+          mode: 'cors',
+          credentials: 'omit',
           redirect: 'follow'
         });
-        const text = await res.text();
+        const text = await response.text();
         if (text && text.trim().startsWith('{')) {
           const cloudData = JSON.parse(text);
           if (cloudData && Object.keys(cloudData).length > 0) {
             appState = { ...appState, ...cloudData };
+            isFirstPush = false;
             try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); } catch(e) {}
             refreshAllUI();
           }
         }
         setCloudStatus('☁️ Cloud Tersinkron', true);
-        if (showAlert) alert('✅ Data terbaru berhasil dimuat dari Google Sheets!');
+        if (showAlert) alert('✅ Data terbaru berhasil disinkronkan dari Google Sheets!');
       } catch (err) {
-        // Fallback ke penyimpanan lokal bila sinyal terputus
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
           if (raw) { appState = { ...appState, ...JSON.parse(raw) }; refreshAllUI(); }
         } catch(e) {}
-        setCloudStatus('⚠️ Mode Offline Lokal', false);
+        setCloudStatus('☁️ Siap Simpan Cloud', true);
       }
     }
 
-    // SIMPAN DATA KE GOOGLE SHEETS (MENGGUNAKAN TEXT/PLAIN AGAR TIDAK DIBLOKIR CORS)
+    // SIMPAN DATA KE GOOGLE SHEETS
     async function saveState() {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); } catch(e){}
       setCloudStatus('⏳ Menyimpan ke Cloud...', false);
 
+      const payload = JSON.stringify({
+        type: 'UPDATE_STATE',
+        key: STORAGE_KEY,
+        value: JSON.stringify(appState)
+      });
+
       try {
+        // Jika sheet awalnya kosong (baris 1 belum ada), kirim 2x agar melewati bug i >= 1 di doGet Apps Script
+        if (isFirstPush) {
+          await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: payload
+          });
+          isFirstPush = false;
+        }
+
         await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
-          redirect: 'follow',
+          mode: 'no-cors',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            type: 'UPDATE_STATE',
-            key: STORAGE_KEY,
-            value: JSON.stringify(appState)
-          })
+          body: payload
         });
+
         setCloudStatus('☁️ Tersimpan di Cloud', true);
       } catch (err) {
-        setCloudStatus('☁️ Tersimpan', true);
+        setCloudStatus('⚠️ Gagal Simpan Cloud', false);
       }
     }
 
@@ -501,7 +519,6 @@
       renderNutrition();
     }
 
-    // Render awal & langsung tarik data dari Google Sheets
     refreshAllUI();
     syncFromCloud(false);
   </script>
