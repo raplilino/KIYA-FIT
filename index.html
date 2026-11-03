@@ -65,10 +65,10 @@
       </div>
       <div class="relative w-full aspect-square bg-gray-100 rounded-2xl overflow-hidden mb-4 border-2 border-rose-100">
         <img id="ai-preview-img" src="" class="w-full h-full object-cover" alt="Preview Makanan" />
-        <div class="laser-line"></div>
+        <div id="ai-laser" class="laser-line"></div>
       </div>
-      <p id="ai-scan-text" class="text-sm font-extrabold text-rose-600 animate-pulse">AI sedang menghitung kalori & protein...</p>
-      <p class="text-[11px] text-gray-400 mt-1">Menganalisis porsi dari foto...</p>
+      <p id="ai-scan-text" class="text-sm font-extrabold text-rose-600 animate-pulse">AI sedang mengenali makanan di foto...</p>
+      <p id="ai-scan-subtext" class="text-[11px] text-gray-400 mt-1">Menghitung porsi, kalori & protein...</p>
     </div>
   </div>
 
@@ -113,7 +113,7 @@
       </div>
 
       <button onclick="downloadCard()" id="btn-download-card" class="btn-pop w-full bg-gray-900 hover:bg-black text-white font-bold py-3.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2">
-        ⬇️ Simpan & Pamerin ke Ayang
+        ⬇️ Simpan & Pamerin ke IG Second
       </button>
     </div>
   </div>
@@ -309,10 +309,18 @@
             <button onclick="openAIScanner()" class="btn-pop bg-gradient-to-r from-rose-500 to-fuchsia-600 hover:from-rose-600 hover:to-fuchsia-700 text-white font-extrabold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-md flex items-center justify-center gap-2">
               📸 Foto Makanan (AI Scan)
             </button>
-            <input type="text" id="custom-food-name" onkeydown="if(event.key==='Enter') addCustomFood()" placeholder="Atau ketik: Nasi Padang Ayam Bakar / 2 Telur..." class="flex-1 border border-rose-200 rounded-xl px-4 py-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 bg-white" />
-            <button onclick="addCustomFood()" class="btn-pop bg-gray-900 hover:bg-black text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-sm transition">+ Hitung</button>
+            <input type="text" id="custom-food-name" onkeydown="if(event.key==='Enter') addCustomFood()" placeholder="Atau ketik makanan apa saja (AI akan menghitung)..." class="flex-1 border border-rose-200 rounded-xl px-4 py-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 bg-white" />
+            <button onclick="addCustomFood()" id="btn-calc-text" class="btn-pop bg-gray-900 hover:bg-black text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-sm transition">+ Hitung AI</button>
           </div>
-          <p class="text-[11px] text-rose-700/80 mt-2 font-medium">✨ Klik <strong>Foto Makanan</strong> untuk memotret piring makanmu dan biarkan AI menghitung kalori serta proteinnya secara otomatis!</p>
+          <!-- Kotak Hasil Deteksi AI Terbaru -->
+          <div id="ai-last-result" class="hidden mt-3 bg-white/90 border border-emerald-200 rounded-xl p-3 flex items-center justify-between gap-2 shadow-sm">
+            <div class="text-xs">
+              <span class="font-extrabold text-emerald-700 block" id="ai-res-title">✅ Terdeteksi: -</span>
+              <span class="text-gray-500 text-[11px]" id="ai-res-detail">-</span>
+            </div>
+            <span id="ai-res-macros" class="text-xs font-black bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 shrink-0">0 kkal • 0g P</span>
+          </div>
+          <p class="text-[11px] text-rose-700/80 mt-2 font-medium">✨ Klik <strong>Foto Makanan</strong> untuk memotret piring makanmu dan biarkan AI mengenali makanan serta menghitung kalori & proteinnya secara langsung!</p>
         </div>
 
         <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Rekomendasi Menu Warung (Klik untuk Tambah):</h3>
@@ -328,7 +336,18 @@
   </div>
 
   <script>
-    const DEFAULT_GEMINI_API_KEY = 'AQ.Ab8RN6KsPqaCcW6TgV7iL-ORDDCJym8Cw5JclOsoRWB9zvwalw';
+    // API Key terbaru yang kamu berikan
+    const DEFAULT_GEMINI_API_KEY = 'AQ.Ab8RN6Jsj5VF-kqo5BHd32c6HwAJSLjg7s4aHj_TgXzT_nl_ig';
+    const OLD_BROKEN_KEY = 'AQ.Ab8RN6KsPqaCcW6TgV7iL-ORDDCJym8Cw5JclOsoRWB9zvwalw';
+
+    // Pastikan jika localStorage masih menyimpan key lama, langsung diganti ke key baru
+    try {
+      const savedKey = localStorage.getItem('KIYAS_CUSTOM_GEMINI_KEY');
+      if (!savedKey || savedKey === OLD_BROKEN_KEY) {
+        localStorage.setItem('KIYAS_CUSTOM_GEMINI_KEY', DEFAULT_GEMINI_API_KEY);
+      }
+    } catch (e) {}
+
     const STORAGE_KEY = 'kiyas_fit_tracker_cloud_v5';
     const LEGACY_KEYS = ['kiyas_fit_tracker_cloud_v6', 'kiyas_fit_tracker_cloud_v5', 'kiyas_fit_tracker_cloud_v3', 'kiyas_fit_tracker_cloud_v2'];
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwasCavBij_b5CwoaLuL6Mr8K29CbVA8PxGfUdrrIUEUZKaerfvHBOqCptUUVkikW4/exec';
@@ -437,7 +456,7 @@
       toastTimer = setTimeout(() => {
         b.classList.add('opacity-0', '-translate-y-4');
         b.classList.remove('opacity-100', 'translate-y-0');
-      }, 2400);
+      }, 2800);
     }
 
     function setCloudStatus(t, ok) {
@@ -878,17 +897,21 @@
         `).join('');
     }
 
-    // TAB 4 & REAL-TIME AI SCANNER (STRICT JSON RESPONSE)
+    // TAB 4 & REAL-TIME AI SCANNER (MENDUKUNG KEY AQ... & AIza...)
     function getActiveApiKey() {
-      return localStorage.getItem('KIYAS_CUSTOM_GEMINI_KEY') || DEFAULT_GEMINI_API_KEY;
+      const saved = localStorage.getItem('KIYAS_CUSTOM_GEMINI_KEY');
+      if (!saved || saved === OLD_BROKEN_KEY) {
+        return DEFAULT_GEMINI_API_KEY;
+      }
+      return saved.trim();
     }
 
     function changeApiKey() {
       const current = getActiveApiKey();
-      const input = prompt('🔑 API Key Gemini:', current);
+      const input = prompt('🔑 Masukkan API Key Google AI Studio / Vertex AI:', current);
       if (input && input.trim()) {
         localStorage.setItem('KIYAS_CUSTOM_GEMINI_KEY', input.trim());
-        showToast('🔑 API Key diperbarui!');
+        showToast('🔑 API Key berhasil disimpan!');
       }
     }
 
@@ -896,7 +919,7 @@
       document.getElementById('ai-file-input').click();
     }
 
-    function compressImageToBase64(file, maxWidth = 800, quality = 0.75) {
+    function compressImageToBase64(file, maxWidth = 800, quality = 0.78) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -927,46 +950,128 @@
       });
     }
 
-    async function callGeminiVision(apiKey, base64Data, mimeType) {
+    function buildEndpoints(apiKey) {
       const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+      const endpoints = [];
+      const encodedKey = encodeURIComponent(apiKey);
+
+      // Jika Key diawali 'AQ.', prioritaskan endpoint Vertex AI Express (aiplatform), lalu fallback ke generativelanguage
+      if (apiKey.startsWith('AQ.')) {
+        for (const m of models) {
+          endpoints.push(`https://aiplatform.googleapis.com/v1/publishers/google/models/${m}:generateContent?key=${encodedKey}`);
+          endpoints.push(`https://aiplatform.googleapis.com/v1beta1/publishers/google/models/${m}:generateContent?key=${encodedKey}`);
+          endpoints.push(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${encodedKey}`);
+        }
+      } else {
+        for (const m of models) {
+          endpoints.push(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${encodedKey}`);
+          endpoints.push(`https://aiplatform.googleapis.com/v1/publishers/google/models/${m}:generateContent?key=${encodedKey}`);
+        }
+      }
+      return endpoints;
+    }
+
+    function parseAIJsonResponse(rawText) {
+      const cleaned = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('Format JSON tidak ditemukan pada respons AI');
+      return JSON.parse(jsonMatch[0]);
+    }
+
+    async function callGeminiVision(apiKey, base64Data, mimeType) {
+      const endpoints = buildEndpoints(apiKey);
       let lastError = null;
 
-      // Instruksi ketat agar AI murni merespons JSON angka tanpa markdown
-      const promptText = 'Analisis foto makanan ini. Berikan nama makanan, total kalori (kkal), dan protein (gram) secara akurat. Output WAJIB berupa teks JSON mentah tanpa markdown, tanpa backtick, dengan struktur persis seperti ini: {"name": "Nama Makanan", "cal": 450, "prot": 28}';
+      const promptText = `Kamu adalah ahli nutrisi dan diet Indonesia. Perhatikan foto ini dengan teliti.
+Identifikasi secara spesifik makanan atau minuman yang terlihat di dalam foto beserta perkiraan porsinya (gunakan nama Bahasa Indonesia yang jelas, contoh: "Nasi Putih, Ayam Goreng & Tempe" atau "Semangkuk Bakso Sapi").
+Hitung estimasi total kalori (kkal) dan total kandungan protein (gram) dari seluruh makanan yang terlihat di foto.
+Kembalikan HANYA JSON murni dengan struktur persis berikut:
+{"name": "Nama Makanan Spesifik di Foto", "cal": 450, "prot": 28, "detail": "Ringkasan komponen makanan & porsi yang terdeteksi"}`;
 
-      for (const model of models) {
+      const payload = {
+        contents: [{
+          role: 'user',
+          parts: [
+            { text: promptText },
+            { inlineData: { mimeType: mimeType, data: base64Data } }
+          ]
+        }],
+        generationConfig: {
+          temperature: 0.1,
+          responseMimeType: 'application/json'
+        }
+      };
+
+      for (const url of endpoints) {
         try {
-          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+          const res = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{
-                parts: [
-                  { text: promptText },
-                  { inline_data: { mime_type: mimeType, data: base64Data } }
-                ]
-              }],
-              generationConfig: { temperature: 0.1 }
-            })
+            body: JSON.stringify(payload)
           });
 
           const data = await res.json();
-          if (data && data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-            let rawText = data.candidates[0].content.parts[0].text;
-            rawText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
-            const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-            if (jsonMatch) {
-              return JSON.parse(jsonMatch[0]);
-            }
+          const textPart = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (textPart) {
+            return parseAIJsonResponse(textPart);
           }
-          if (data.error) {
-            lastError = new Error(data.error.message || 'API Error');
+          if (data?.error) {
+            lastError = new Error(data.error.message || 'API menolak permintaan');
           }
         } catch (err) {
           lastError = err;
         }
       }
       throw lastError || new Error('Gagal menghubungi server AI');
+    }
+
+    async function callGeminiText(apiKey, foodDescription) {
+      const endpoints = buildEndpoints(apiKey);
+      let lastError = null;
+
+      const promptText = `Kamu adalah ahli nutrisi Indonesia. Hitung estimasi kalori (kkal) dan protein (gram) untuk makanan berikut: "${foodDescription}".
+Kembalikan HANYA JSON murni dengan struktur persis berikut:
+{"name": "${foodDescription}", "cal": 350, "prot": 20, "detail": "Estimasi porsi standar"}`;
+
+      const payload = {
+        contents: [{
+          role: 'user',
+          parts: [{ text: promptText }]
+        }],
+        generationConfig: {
+          temperature: 0.1,
+          responseMimeType: 'application/json'
+        }
+      };
+
+      for (const url of endpoints) {
+        try {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          const textPart = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (textPart) {
+            return parseAIJsonResponse(textPart);
+          }
+          if (data?.error) {
+            lastError = new Error(data.error.message);
+          }
+        } catch (err) {
+          lastError = err;
+        }
+      }
+      throw lastError || new Error('Gagal menghitung lewat AI');
+    }
+
+    function showAIDetectionBanner(name, cal, prot, detail) {
+      const box = document.getElementById('ai-last-result');
+      document.getElementById('ai-res-title').textContent = `✅ AI Mendeteksi: ${name}`;
+      document.getElementById('ai-res-detail').textContent = detail || 'Dihitung otomatis berdasarkan visual porsi makanan.';
+      document.getElementById('ai-res-macros').textContent = `${cal} kkal • ${prot}g Protein`;
+      box.classList.remove('hidden');
     }
 
     async function handleAIScan(event) {
@@ -977,7 +1082,8 @@
         const compressed = await compressImageToBase64(file);
         document.getElementById('ai-preview-img').src = compressed.fullDataUrl;
         document.getElementById('ai-scan-modal').classList.remove('hidden');
-        document.getElementById('ai-scan-text').textContent = '🤖 AI sedang menghitung kalori & protein...';
+        document.getElementById('ai-scan-text').textContent = '🤖 AI sedang mengenali makanan di foto...';
+        document.getElementById('ai-scan-subtext').textContent = 'Menganalisis porsi, kalori & protein secara real-time...';
 
         const apiKey = getActiveApiKey();
         const foodData = await callGeminiVision(apiKey, compressed.base64, compressed.mimeType);
@@ -985,88 +1091,106 @@
         document.getElementById('ai-scan-modal').classList.add('hidden');
 
         const cleanName = (foodData.name || 'Makanan Hasil Scan').trim();
-        const calVal = Math.max(20, Math.round(Number(foodData.cal) || 350));
-        const protVal = Math.max(1, Math.round(Number(foodData.prot) || 18));
+        const calVal = Math.max(5, Math.round(Number(foodData.cal) || 250));
+        const protVal = Math.max(0, Math.round(Number(foodData.prot) || 10));
+        const detailVal = (foodData.detail || 'Terdeteksi langsung dari foto').trim();
 
         appState.loggedFoods.push({
-          name: `${cleanName} 📸(AI)`,
+          name: `${cleanName} 📸`,
           cal: calVal,
           prot: protVal,
           tag: 'AI Vision'
         });
 
+        showAIDetectionBanner(cleanName, calVal, protVal, detailVal);
         renderNutrition();
         saveState();
-        if (typeof confetti === 'function') confetti({ particleCount: 45, spread: 65 });
-        showToast(`✨ AI: ${cleanName} (+${calVal} kkal | ${protVal}g P)`);
+        if (typeof confetti === 'function') confetti({ particleCount: 55, spread: 65 });
+        showToast(`✨ ${cleanName}: +${calVal} kkal | ${protVal}g Protein`);
       } catch (error) {
         console.error('AI Scan Error:', error);
         document.getElementById('ai-scan-modal').classList.add('hidden');
-
-        const manualDesc = prompt(
-          '📸 Foto berhasil dipindai!\nMasukkan nama makanan di foto (contoh: "Nasi Ayam Bakar"):',
-          'Nasi Ayam Bakar'
-        );
-        if (manualDesc && manualDesc.trim()) {
-          document.getElementById('custom-food-name').value = manualDesc.trim() + ' 📸';
-          addCustomFood();
-        }
+        alert(`⚠️ Gagal memindai foto dengan AI:\n${error.message || 'Periksa koneksi internet atau API Key.'}`);
       }
 
       event.target.value = '';
     }
 
-    function addCustomFood() {
+    async function addCustomFood() {
       const inp = document.getElementById('custom-food-name');
+      const btn = document.getElementById('btn-calc-text');
       const name = inp.value.trim();
       if (!name) return alert('Ketik nama makanan terlebih dahulu!');
 
-      const lower = name.toLowerCase();
-      let cal = 0, prot = 0, matched = false;
+      const originalBtnText = btn.textContent;
+      btn.textContent = '⏳ Menghitung...';
+      btn.disabled = true;
 
-      if (lower.includes('nasi')) {
-        if (lower.includes('setengah') || lower.includes('1/2') || lower.includes('sedikit')) { cal += 100; prot += 2; }
-        else if (lower.includes('goreng')) { cal += 380; prot += 9; }
-        else if (lower.includes('padang')) { cal += 280; prot += 5; }
-        else { cal += 180; prot += 4; }
-        matched = true;
-      }
-      if (lower.includes('ayam')) {
-        if (lower.includes('goreng') || lower.includes('geprek') || lower.includes('krispi')) { cal += 290; prot += 24; }
-        else { cal += 220; prot += 26; }
-        matched = true;
-      }
-      if (lower.includes('ikan') || lower.includes('lele') || lower.includes('nila') || lower.includes('tuna') || lower.includes('salmon') || lower.includes('tongkol')) {
-        cal += 210; prot += 28; matched = true;
-      }
-      if (lower.includes('sapi') || lower.includes('daging') || lower.includes('rendang') || lower.includes('empal') || lower.includes('steak')) {
-        cal += 280; prot += 26; matched = true;
-      }
-      if (lower.includes('telur') || lower.includes('telor') || lower.includes('omelet')) {
-        const mult = lower.includes('2') || lower.includes('dua') ? 2 : (lower.includes('3') ? 3 : 1);
-        cal += (lower.includes('dadar') || lower.includes('ceplok') ? 110 : 75) * mult;
-        prot += 6 * mult;
-        matched = true;
-      }
-      if (lower.includes('tahu') || lower.includes('tempe')) { cal += 140; prot += 10; matched = true; }
-      if (lower.includes('mie') || lower.includes('bakmi') || lower.includes('kwetiau') || lower.includes('bihun')) { cal += 360; prot += 12; matched = true; }
-      if (lower.includes('bakso') || lower.includes('soto') || lower.includes('sup') || lower.includes('sop') || lower.includes('rawon')) { cal += 320; prot += 20; matched = true; }
-      if (lower.includes('sate')) { cal += 340; prot += 28; matched = true; }
-      if (lower.includes('sayur') || lower.includes('lalap') || lower.includes('capcay') || lower.includes('pecel') || lower.includes('gado') || lower.includes('salad')) { cal += 120; prot += 5; matched = true; }
-      if (lower.includes('buah') || lower.includes('apel') || lower.includes('pisang') || lower.includes('pepaya') || lower.includes('oat')) { cal += 130; prot += 3; matched = true; }
-      if (lower.includes('kopi') || lower.includes('teh') || lower.includes('boba') || lower.includes('susu') || lower.includes('matcha')) { cal += 160; prot += 4; matched = true; }
+      try {
+        const apiKey = getActiveApiKey();
+        const aiResult = await callGeminiText(apiKey, name);
+        const cleanName = (aiResult.name || name).trim();
+        const calVal = Math.max(5, Math.round(Number(aiResult.cal) || 250));
+        const protVal = Math.max(0, Math.round(Number(aiResult.prot) || 10));
 
-      if (!matched) { cal = 350; prot = 18; }
-      if ((lower.includes('setengah') || lower.includes('1/2')) && !lower.includes('nasi')) {
-        cal = Math.round(cal * 0.6);
-        prot = Math.round(prot * 0.6);
-      }
+        appState.loggedFoods.push({ name: `${cleanName} ✨`, cal: calVal, prot: protVal, tag: 'AI Calc' });
+        inp.value = '';
+        showAIDetectionBanner(cleanName, calVal, protVal, aiResult.detail || 'Dihitung oleh AI Nutritionist');
+        renderNutrition();
+        showToast(`✨ ${cleanName}: +${calVal} kkal & ${protVal}g Protein!`);
+        saveState();
+      } catch (e) {
+        // Fallback kalkulasi kamus lokal jika offline
+        const lower = name.toLowerCase();
+        let cal = 0, prot = 0, matched = false;
 
-      appState.loggedFoods.push({ name, cal, prot, tag: 'Auto-Estimate' });
-      inp.value = '';
-      renderNutrition();
-      showToast(`✨ +${cal} kkal & ${prot}g Protein tercatat!`);
-      saveState();
+        if (lower.includes('nasi')) {
+          if (lower.includes('setengah') || lower.includes('1/2') || lower.includes('sedikit')) { cal += 100; prot += 2; }
+          else if (lower.includes('goreng')) { cal += 380; prot += 9; }
+          else if (lower.includes('padang')) { cal += 280; prot += 5; }
+          else { cal += 180; prot += 4; }
+          matched = true;
+        }
+        if (lower.includes('ayam')) {
+          if (lower.includes('goreng') || lower.includes('geprek') || lower.includes('krispi')) { cal += 290; prot += 24; }
+          else { cal += 220; prot += 26; }
+          matched = true;
+        }
+        if (lower.includes('ikan') || lower.includes('lele') || lower.includes('nila') || lower.includes('tuna') || lower.includes('salmon') || lower.includes('tongkol')) {
+          cal += 210; prot += 28; matched = true;
+        }
+        if (lower.includes('sapi') || lower.includes('daging') || lower.includes('rendang') || lower.includes('empal') || lower.includes('steak')) {
+          cal += 280; prot += 26; matched = true;
+        }
+        if (lower.includes('telur') || lower.includes('telor') || lower.includes('omelet')) {
+          const mult = lower.includes('2') || lower.includes('dua') ? 2 : (lower.includes('3') ? 3 : 1);
+          cal += (lower.includes('dadar') || lower.includes('ceplok') ? 110 : 75) * mult;
+          prot += 6 * mult;
+          matched = true;
+        }
+        if (lower.includes('tahu') || lower.includes('tempe')) { cal += 140; prot += 10; matched = true; }
+        if (lower.includes('mie') || lower.includes('bakmi') || lower.includes('kwetiau') || lower.includes('bihun')) { cal += 360; prot += 12; matched = true; }
+        if (lower.includes('bakso') || lower.includes('soto') || lower.includes('sup') || lower.includes('sop') || lower.includes('rawon')) { cal += 320; prot += 20; matched = true; }
+        if (lower.includes('sate')) { cal += 340; prot += 28; matched = true; }
+        if (lower.includes('sayur') || lower.includes('lalap') || lower.includes('capcay') || lower.includes('pecel') || lower.includes('gado') || lower.includes('salad')) { cal += 120; prot += 5; matched = true; }
+        if (lower.includes('buah') || lower.includes('apel') || lower.includes('pisang') || lower.includes('pepaya') || lower.includes('oat')) { cal += 130; prot += 3; matched = true; }
+        if (lower.includes('kopi') || lower.includes('teh') || lower.includes('boba') || lower.includes('susu') || lower.includes('matcha')) { cal += 160; prot += 4; matched = true; }
+
+        if (!matched) { cal = 300; prot = 15; }
+        if ((lower.includes('setengah') || lower.includes('1/2')) && !lower.includes('nasi')) {
+          cal = Math.round(cal * 0.6);
+          prot = Math.round(prot * 0.6);
+        }
+
+        appState.loggedFoods.push({ name, cal, prot, tag: 'Auto-Estimate' });
+        inp.value = '';
+        renderNutrition();
+        showToast(`✨ +${cal} kkal & ${prot}g Protein tercatat!`);
+        saveState();
+      } finally {
+        btn.textContent = originalBtnText;
+        btn.disabled = false;
+      }
     }
 
     function renderNutrition() {
@@ -1126,7 +1250,14 @@
       saveState();
     }
     function removeFood(i) { appState.loggedFoods.splice(i, 1); renderNutrition(); saveState(); }
-    function resetDailyNutrition() { appState.loggedFoods = []; appState.skinChecks = {}; renderNutrition(); showToast('🔄 Log makan hari ini di-reset'); saveState(); }
+    function resetDailyNutrition() {
+      appState.loggedFoods = [];
+      appState.skinChecks = {};
+      document.getElementById('ai-last-result').classList.add('hidden');
+      renderNutrition();
+      showToast('🔄 Log makan hari ini di-reset');
+      saveState();
+    }
     function toggleSkinHabit(id) { appState.skinChecks[id] = !appState.skinChecks[id]; renderNutrition(); saveState(); }
 
     // RECAP CARD
@@ -1165,7 +1296,7 @@
       } catch (e) {
         alert('Gagal mengunduh otomatis, silakan screenshot langsung kartu di layar.');
       }
-      btn.textContent = '⬇️ Simpan & Pamerin ke Ayang';
+      btn.textContent = '⬇️ Simpan & Pamerin ke IG second';
     }
 
     function refreshAllUI() {
