@@ -41,7 +41,6 @@
       display: flex; align-items: center; justify-content: center; flex-direction: column;
     }
 
-    /* Animasi Laser AI Scanner */
     @keyframes scanLaser { 0%, 100% { top: 2%; opacity: 0.85; } 50% { top: 94%; opacity: 1; } }
     .laser-line {
       position: absolute; left: 0; width: 100%; height: 3px;
@@ -69,14 +68,13 @@
         <div class="laser-line"></div>
       </div>
       <p id="ai-scan-text" class="text-sm font-extrabold text-rose-600 animate-pulse">AI sedang menghitung kalori & protein...</p>
-      <p class="text-[11px] text-gray-400 mt-1">Mohon tunggu beberapa detik</p>
+      <p class="text-[11px] text-gray-400 mt-1">Menganalisis porsi dari foto...</p>
     </div>
   </div>
 
-  <!-- Hidden Input File untuk Kamera & Galeri -->
   <input type="file" accept="image/*" id="ai-file-input" class="hidden" onchange="handleAIScan(event)">
 
-  <!-- MODAL: KARTU LAPORAN INSTAGRAMABLE -->
+  <!-- MODAL: KARTU LAPORAN -->
   <div id="share-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-[2rem] p-5 w-full max-w-sm shadow-2xl">
       <div class="flex justify-between items-center mb-3">
@@ -115,7 +113,7 @@
       </div>
 
       <button onclick="downloadCard()" id="btn-download-card" class="btn-pop w-full bg-gray-900 hover:bg-black text-white font-bold py-3.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2">
-        ⬇️ Simpan & Pamerin ke SG second
+        ⬇️ Simpan & Pamerin ke Ayang
       </button>
     </div>
   </div>
@@ -131,7 +129,7 @@
             <span id="cloud-status" class="float-badge bg-amber-400 text-amber-950 text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-full transition shadow-sm">⏳ Menghubungkan...</span>
           </div>
           <h1 class="text-3xl sm:text-4xl font-black tracking-tight mb-1">KIYA'S FIT ✨</h1>
-          <p class="text-rose-100 text-xs sm:text-sm font-semibold">62 kg ➔ 55 kg • AI Food Scanner</p>
+          <p class="text-rose-100 text-xs sm:text-sm font-semibold">62 kg ➔ 55 kg • Smart Overload • AI Food Scanner</p>
         </div>
         <div class="flex flex-col sm:items-end gap-2">
           <button onclick="syncFromCloud(true)" class="btn-pop bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white text-xs font-bold px-4 py-2.5 rounded-2xl transition shadow-sm border border-white/20">🔄 Refresh Cloud</button>
@@ -190,19 +188,17 @@
 
     <!-- TAB 2: GYM, OVERLOAD & RECOVERY -->
     <section id="tab-gym" class="hidden animate-tab space-y-6">
-      <!-- FITUR 4: MUSCLE RECOVERY INDICATOR -->
       <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-rose-100">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
           <div>
             <span class="text-[10px] font-bold uppercase tracking-widest text-fuchsia-500 block mb-1">Biometric Recovery Engine</span>
-            <h2 class="text-lg font-black text-gray-800"> Status Pemulihan & Kesiapan Otot</h2>
+            <h2 class="text-lg font-black text-gray-800">🔋 Status Pemulihan & Kesiapan Otot</h2>
           </div>
           <span id="recovery-advice-badge" class="text-[11px] font-bold bg-gray-100 text-gray-600 px-3 py-1.5 rounded-xl">Menganalisis...</span>
         </div>
         <div id="muscle-recovery-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
       </div>
 
-      <!-- TIMERS -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-6 shadow-lg border border-gray-700 flex flex-col justify-between text-white card-hover relative overflow-hidden">
           <div class="absolute top-0 right-0 w-32 h-32 bg-rose-500/20 rounded-full blur-3xl"></div>
@@ -236,7 +232,6 @@
         </div>
       </div>
 
-      <!-- FITUR 3: PROGRESSIVE OVERLOAD -->
       <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-rose-100">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-rose-50">
           <div class="flex flex-wrap gap-2" id="workout-day-buttons"></div>
@@ -262,7 +257,7 @@
       </div>
     </section>
 
-    <!-- TAB 4: NUTRITION, DONUT CHARTS & REAL-TIME AI VISION -->
+    <!-- TAB 4: NUTRITION & REAL-TIME AI SCANNER -->
     <section id="tab-nutrition" class="hidden animate-tab space-y-6">
       <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-rose-100">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
@@ -273,7 +268,6 @@
           <button onclick="resetDailyNutrition()" class="btn-pop self-start sm:self-auto bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold px-4 py-2.5 rounded-xl transition">🔄 Reset Hari Ini</button>
         </div>
 
-        <!-- FITUR 1: VISUAL DONUT CHARTS -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <div class="bg-rose-50/50 rounded-3xl p-5 border border-rose-100 card-hover flex items-center gap-5 shadow-sm">
             <div id="cal-donut" class="donut-chart shadow-inner shrink-0" style="--pct: 0%;">
@@ -306,7 +300,6 @@
           </div>
         </div>
 
-        <!-- REAL-TIME AI PHOTO SCANNER & AUTO-ESTIMATOR -->
         <div class="bg-gradient-to-r from-rose-50 via-pink-50 to-fuchsia-50 p-5 rounded-2xl border border-rose-200 mb-5 shadow-sm">
           <div class="flex items-center justify-between mb-3">
             <h4 class="font-extrabold text-sm text-rose-900">🤖 Kalkulator Makanan AI (Foto & Teks)</h4>
@@ -335,15 +328,11 @@
   </div>
 
   <script>
-    // ============================================================================
-    // KONFIGURASI UTAMA & API KEY LANGSUNG
-    // ============================================================================
     const DEFAULT_GEMINI_API_KEY = 'AQ.Ab8RN6KsPqaCcW6TgV7iL-ORDDCJym8Cw5JclOsoRWB9zvwalw';
     const STORAGE_KEY = 'kiyas_fit_tracker_cloud_v5';
     const LEGACY_KEYS = ['kiyas_fit_tracker_cloud_v6', 'kiyas_fit_tracker_cloud_v5', 'kiyas_fit_tracker_cloud_v3', 'kiyas_fit_tracker_cloud_v2'];
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwasCavBij_b5CwoaLuL6Mr8K29CbVA8PxGfUdrrIUEUZKaerfvHBOqCptUUVkikW4/exec';
 
-    // Konfigurasi Kenaikan Progressive Overload & Kelompok Otot
     const exerciseMeta = {
       leg_press:      { step: 2.5, group: 'lower', label: 'Lower Body' },
       goblet_squat:   { step: 2.0, group: 'lower', label: 'Lower Body' },
@@ -362,35 +351,35 @@
     };
 
     const defaultWorkouts = {
-      senin: { dayName: 'Senin', muscleGroup: 'lower', title: 'Lower Body (Fokus Glutes & Paha Depan)', cardio: '20 Menit Incline Treadmill Walk (Incline 6-10, Speed 4.2 - 4.8 km/jam)', exercises: [{ id: 'leg_press', name: 'Seated Leg Press Machine', sets: '3 Set x 12 Repetisi', weight: '25' }, { id: 'goblet_squat', name: 'Dumbbell Goblet Squat', sets: '3 Set x 12 Repetisi', weight: '6' }, { id: 'leg_ext', name: 'Leg Extension Machine', sets: '3 Set x 12 Repetisi', weight: '15' }] },
-      selasa: { dayName: 'Selasa', muscleGroup: 'upper', title: 'Upper Body & Postur Tegak', cardio: '15 Menit Stationary Bike (Sepeda Statis Level Sedang)', exercises: [{ id: 'lat_pulldown', name: 'Machine Lat Pulldown', sets: '3 Set x 12 Repetisi', weight: '20' }, { id: 'cable_row', name: 'Seated Cable Row', sets: '3 Set x 12 Repetisi', weight: '20' }, { id: 'chest_press', name: 'Assisted Chest Press Machine', sets: '3 Set x 12 Repetisi', weight: '15' }, { id: 'lateral_raise', name: 'Dumbbell Lateral Raise', sets: '3 Set x 12 Repetisi', weight: '3' }] },
-      rabu: { dayName: 'Rabu', muscleGroup: 'core', title: 'Active Recovery Cardio & Core', cardio: '35 Menit Incline Treadmill Walk / Elliptical Cross Trainer Santai', exercises: [{ id: 'incline_walk', name: 'Incline Treadmill Walk (Zona 2)', sets: '1 Sesi x 35 Menit', weight: '-' }, { id: 'plank', name: 'Forearm Plank & Core', sets: '3 Set x 30 Detik', weight: 'BB' }] },
-      jumat: { dayName: 'Jumat', muscleGroup: 'lower', title: 'Lower Body (Fokus Hamstring & Glutes)', cardio: '20 Menit Incline Treadmill Walk (Incline 8, Speed 4.5 km/jam)', exercises: [{ id: 'rdl', name: 'Dumbbell Romanian Deadlift (RDL)', sets: '3 Set x 12 Repetisi', weight: '6' }, { id: 'leg_curl', name: 'Seated / Lying Leg Curl Machine', sets: '3 Set x 12 Repetisi', weight: '15' }, { id: 'hip_abduction', name: 'Hip Abduction Machine (Outer Thigh/Glutes)', sets: '3 Set x 15 Repetisi', weight: '25' }] },
-      sabtu: { dayName: 'Sabtu', muscleGroup: 'full', title: 'Full Body Machine Circuit', cardio: '15 Menit Kardio Mesin Pilihan (Treadmill / Bike / Elliptical)', exercises: [{ id: 'leg_press', name: 'Seated Leg Press Machine', sets: '3 Set x 12 Repetisi', weight: '25' }, { id: 'lat_pulldown', name: 'Machine Lat Pulldown', sets: '3 Set x 12 Repetisi', weight: '20' }, { id: 'shoulder_press', name: 'Shoulder Press Machine', sets: '3 Set x 12 Repetisi', weight: '10' }, { id: 'face_pull', name: 'Cable Face Pull (Postur Bahu)', sets: '3 Set x 15 Repetisi', weight: '10' }] }
+      senin: { dayName: 'Senin', muscleGroup: 'lower', title: 'Lower Body (Fokus Glutes & Paha Depan)', cardio: '20 Menit Incline Treadmill Walk', exercises: [{ id: 'leg_press', name: 'Seated Leg Press Machine', sets: '3 Set x 12 Repetisi', weight: '25' }, { id: 'goblet_squat', name: 'Dumbbell Goblet Squat', sets: '3 Set x 12 Repetisi', weight: '6' }, { id: 'leg_ext', name: 'Leg Extension Machine', sets: '3 Set x 12 Repetisi', weight: '15' }] },
+      selasa: { dayName: 'Selasa', muscleGroup: 'upper', title: 'Upper Body & Postur Tegak', cardio: '15 Menit Stationary Bike', exercises: [{ id: 'lat_pulldown', name: 'Machine Lat Pulldown', sets: '3 Set x 12 Repetisi', weight: '20' }, { id: 'cable_row', name: 'Seated Cable Row', sets: '3 Set x 12 Repetisi', weight: '20' }, { id: 'chest_press', name: 'Assisted Chest Press Machine', sets: '3 Set x 12 Repetisi', weight: '15' }, { id: 'lateral_raise', name: 'Dumbbell Lateral Raise', sets: '3 Set x 12 Repetisi', weight: '3' }] },
+      rabu: { dayName: 'Rabu', muscleGroup: 'core', title: 'Active Recovery Cardio & Core', cardio: '35 Menit Incline Treadmill Walk', exercises: [{ id: 'incline_walk', name: 'Incline Treadmill Walk (Zona 2)', sets: '1 Sesi x 35 Menit', weight: '-' }, { id: 'plank', name: 'Forearm Plank & Core', sets: '3 Set x 30 Detik', weight: 'BB' }] },
+      jumat: { dayName: 'Jumat', muscleGroup: 'lower', title: 'Lower Body (Fokus Hamstring & Glutes)', cardio: '20 Menit Incline Treadmill Walk', exercises: [{ id: 'rdl', name: 'Dumbbell Romanian Deadlift (RDL)', sets: '3 Set x 12 Repetisi', weight: '6' }, { id: 'leg_curl', name: 'Seated / Lying Leg Curl Machine', sets: '3 Set x 12 Repetisi', weight: '15' }, { id: 'hip_abduction', name: 'Hip Abduction Machine (Outer Thigh/Glutes)', sets: '3 Set x 15 Repetisi', weight: '25' }] },
+      sabtu: { dayName: 'Sabtu', muscleGroup: 'full', title: 'Full Body Machine Circuit', cardio: '15 Menit Kardio Mesin Pilihan', exercises: [{ id: 'leg_press', name: 'Seated Leg Press Machine', sets: '3 Set x 12 Repetisi', weight: '25' }, { id: 'lat_pulldown', name: 'Machine Lat Pulldown', sets: '3 Set x 12 Repetisi', weight: '20' }, { id: 'shoulder_press', name: 'Shoulder Press Machine', sets: '3 Set x 12 Repetisi', weight: '10' }, { id: 'face_pull', name: 'Cable Face Pull (Postur Bahu)', sets: '3 Set x 15 Repetisi', weight: '10' }] }
     };
 
     const defaultTutorials = [
-      { id: 'leg_press', name: 'Seated Leg Press Machine', muscle: 'Bokong (Glutes) & Paha', setup158: 'Majukan kursi hingga lutut membentuk sudut 90 derajat saat telapak kaki menempel di papan pijakan. Buka kaki selebar bahu di bagian agak atas papan.', steps: 'Dorong papan menggunakan tumit (bukan ujung jari) sambil buang napas hingga kaki hampir lurus. Turunkan kembali perlahan sambil tarik napas.', mistake: 'Jangan pernah mengunci lutut sampai lurus mentok (lockout) agar sendi lutut tetap aman.' },
-      { id: 'goblet_squat', name: 'Dumbbell Goblet Squat', muscle: 'Paha Depan & Glutes', setup158: 'Berdiri selebar bahu dengan ujung kaki sedikit serong keluar (15-30 derajat). Pegang 1 dumbbell secara vertikal menempel di depan dada.', steps: 'Tarik napas, dorong pinggul ke belakang bawah seperti hendak duduk di kursi. Buang napas saat mendorong tumit untuk berdiri kembali.', mistake: 'Lutut jangan masuk ke dalam (valgus) dan punggung jangan membungkuk ke depan.' },
-      { id: 'leg_ext', name: 'Leg Extension Machine', muscle: 'Paha Depan (Quads)', setup158: 'Geser sandaran punggung ke depan supaya lipatan lutut pas menempel di tepi kursi. Atur bantalan kaki tepat di atas pergelangan kaki.', steps: 'Buang napas sambil meluruskan kaki ke atas hingga paha depan berkontraksi (tahan 1 detik di atas), lalu turunkan perlahan.', mistake: 'Mengayunkan beban terlalu cepat atau mengangkat bokong dari kursi.' },
-      { id: 'lat_pulldown', name: 'Machine Lat Pulldown', muscle: 'Punggung Atas & Postur', setup158: 'Turunkan bantalan pengunci paha serapat mungkin agar tubuh tidak ikut terangkat. Pegang bar sedikit lebih lebar dari bahu.', steps: 'Busungkan dada sedikit, tarik bar ke arah dada atas/dagu sambil buang napas dan rasakan tulang belikat merapat. Kembalikan perlahan.', mistake: 'Jangan menarik bar ke belakang leher dan jangan membungkukkan bahu.' },
-      { id: 'cable_row', name: 'Seated Cable Row', muscle: 'Punggung Tengah', setup158: 'Letakkan telapak kaki di pijakan dengan lutut sedikit ditekuk (jangan lurus kaku). Duduk tegak dengan dada membusung.', steps: 'Tarik pegangan ke arah perut atas sambil menjepit tulang belikat ke belakang. Jaga siku tetap dekat di samping badan.', mistake: 'Mengayunkan punggung maju-mundur terlalu jauh untuk menarik beban.' },
-      { id: 'chest_press', name: 'Assisted / Machine Chest Press', muscle: 'Dada & Lengan Belakang', setup158: 'Naikkan kursi agar posisi pegangan tangan sejajar dengan bagian tengah dada (bukan sejajar leher/bahu).', steps: 'Dorong pegangan ke depan sambil buang napas hingga tangan hampir lurus, lalu kembalikan perlahan.', mistake: 'Bahu ikut terangkat mendekati telinga saat mendorong beban.' },
-      { id: 'lateral_raise', name: 'Dumbbell Lateral Raise', muscle: 'Bahu Samping', setup158: 'Gunakan dumbbell ringan (2–4 kg). Berdiri tegak dengan siku sedikit ditekuk.', steps: 'Angkat kedua lengan ke samping hingga sejajar tinggi bahu, tahan sejenak, lalu turunkan perlahan.', mistake: 'Memakai beban terlalu berat sehingga bahu atas/leher ikut terangkat.' },
-      { id: 'rdl', name: 'Dumbbell Romanian Deadlift (RDL)', muscle: 'Paha Belakang (Hamstring) & Glutes', setup158: 'Berdiri selebar pinggul, pegang sepasang dumbbell di depan paha, kunci lutut dalam posisi sedikit menekuk.', steps: 'Dorong bokong jauh ke belakang sambil dumbbell turun menyusuri tulang kering. Berdiri kembali sambil kencangkan glutes.', mistake: 'Membungkukkan punggung bawah atau menurunkan dumbbell terlalu jauh sampai ke lantai.' },
-      { id: 'leg_curl', name: 'Seated / Lying Leg Curl Machine', muscle: 'Paha Belakang (Hamstring)', setup158: 'Sesuaikan sandaran agar poros putaran mesin sejajar lutut, dan bantalan bawah berada tepat di atas tumit belakang.', steps: 'Tekuk kaki ke bawah/belakang sejauh mungkin sambil buang napas, tahan 1 detik, lalu lepaskan perlahan.', mistake: 'Melepaskan beban secara mendadak tanpa kontrol.' },
-      { id: 'hip_abduction', name: 'Hip Abduction Machine', muscle: 'Glutes Samping (Outer Glutes)', setup158: 'Duduk rapat di sandaran, letakkan bagian luar lutut pada bantalan mesin.', steps: 'Dorong kedua lutut membuka ke samping sejauh mungkin sambil buang napas, tahan 1 detik, lalu kembali perlahan.', mistake: 'Menggunakan momentum pantulan tanpa menahan kontraksi di posisi terbuka.' },
-      { id: 'shoulder_press', name: 'Shoulder Press Machine', muscle: 'Bahu', setup158: 'Atur tinggi kursi agar pegangan mesin sejajar dengan telinga atau bahu atas saat posisi awal.', steps: 'Dorong pegangan lurus ke atas kepala sambil buang napas, lalu turunkan perlahan kembali sejajar telinga.', mistake: 'Melengkungkan punggung bawah berlebihan saat mendorong.' },
-      { id: 'face_pull', name: 'Cable Face Pull', muscle: 'Bahu Belakang & Postur', setup158: 'Atur katrol tali (rope) setinggi wajah/dahi. Pegang ujung tali dan mundur 1–2 langkah.', steps: 'Tarik tali ke arah dahi sambil membuka kedua tangan ke samping telinga dan merapatkan belikat.', mistake: 'Menarik ke arah dada bawah atau memakai beban yang terlalu berat.' },
-      { id: 'incline_walk', name: 'Incline Treadmill Walk', muscle: 'Pembakaran Lemak Low-Impact', setup158: 'Atur Incline di angka 6 sampai 10, dan Speed di 4.0 – 4.8 km/jam.', steps: 'Berjalan tegak dengan ayunan tangan natural tanpa berpegangan pada pinggiran treadmill.', mistake: 'Berpegangan erat pada handrail sambil mencondongkan badan ke belakang.' },
-      { id: 'plank', name: 'Forearm Plank & Core', muscle: 'Otot Inti Perut (Core)', setup158: 'Letakkan siku tepat di bawah bahu di atas matras, luruskan kaki ke belakang.', steps: 'Kencangkan otot perut dan bokong sehingga tubuh membentuk garis lurus dari kepala hingga tumit.', mistake: 'Pinggul turun melengkung ke lantai atau bokong terlalu menungging.' }
+      { id: 'leg_press', name: 'Seated Leg Press Machine', muscle: 'Bokong (Glutes) & Paha', setup158: 'Majukan kursi hingga lutut membentuk sudut 90 derajat.', steps: 'Dorong papan menggunakan tumit sambil buang napas.', mistake: 'Jangan mengunci lutut sampai lurus mentok.' },
+      { id: 'goblet_squat', name: 'Dumbbell Goblet Squat', muscle: 'Paha Depan & Glutes', setup158: 'Berdiri selebar bahu, pegang dumbbell di depan dada.', steps: 'Dorong pinggul ke belakang bawah seperti duduk.', mistake: 'Lutut jangan masuk ke dalam.' },
+      { id: 'leg_ext', name: 'Leg Extension Machine', muscle: 'Paha Depan (Quads)', setup158: 'Lipatan lutut pas menempel di tepi kursi.', steps: 'Luruskan kaki ke atas hingga berkontraksi.', mistake: 'Mengayunkan beban terlalu cepat.' },
+      { id: 'lat_pulldown', name: 'Machine Lat Pulldown', muscle: 'Punggung Atas & Postur', setup158: 'Turunkan bantalan paha rapat, pegang bar agak lebar.', steps: 'Tarik bar ke dada atas sambil busungkan dada.', mistake: 'Menarik bar ke belakang leher.' },
+      { id: 'cable_row', name: 'Seated Cable Row', muscle: 'Punggung Tengah', setup158: 'Kaki di pijakan, lutut sedikit ditekuk.', steps: 'Tarik pegangan ke perut atas sambil menjepit belikat.', mistake: 'Mengayunkan punggung terlalu jauh.' },
+      { id: 'chest_press', name: 'Assisted / Machine Chest Press', muscle: 'Dada & Lengan Belakang', setup158: 'Pegangan sejajar dengan bagian tengah dada.', steps: 'Dorong ke depan hingga hampir lurus.', mistake: 'Bahu ikut terangkat mendekati telinga.' },
+      { id: 'lateral_raise', name: 'Dumbbell Lateral Raise', muscle: 'Bahu Samping', setup158: 'Gunakan dumbbell ringan, siku sedikit ditekuk.', steps: 'Angkat lengan ke samping hingga sejajar bahu.', mistake: 'Memakai beban terlalu berat.' },
+      { id: 'rdl', name: 'Dumbbell Romanian Deadlift (RDL)', muscle: 'Hamstring & Glutes', setup158: 'Berdiri selebar pinggul, kunci lutut sedikit menekuk.', steps: 'Dorong bokong ke belakang menyusuri tulang kering.', mistake: 'Membungkukkan punggung bawah.' },
+      { id: 'leg_curl', name: 'Seated / Lying Leg Curl Machine', muscle: 'Hamstring', setup158: 'Poros putaran mesin sejajar lutut.', steps: 'Tekuk kaki ke bawah sejauh mungkin.', mistake: 'Melepaskan beban tanpa kontrol.' },
+      { id: 'hip_abduction', name: 'Hip Abduction Machine', muscle: 'Outer Glutes', setup158: 'Duduk rapat, luar lutut menempel bantalan.', steps: 'Dorong lutut membuka ke samping.', mistake: 'Menggunakan momentum pantulan.' },
+      { id: 'shoulder_press', name: 'Shoulder Press Machine', muscle: 'Bahu', setup158: 'Pegangan sejajar telinga di awal.', steps: 'Dorong lurus ke atas kepala.', mistake: 'Melengkungkan punggung bawah berlebihan.' },
+      { id: 'face_pull', name: 'Cable Face Pull', muscle: 'Bahu Belakang & Postur', setup158: 'Katrol tali setinggi wajah.', steps: 'Tarik tali ke dahi sambil membuka tangan.', mistake: 'Menarik ke arah dada bawah.' },
+      { id: 'incline_walk', name: 'Incline Treadmill Walk', muscle: 'Fat Loss Low-Impact', setup158: 'Incline 6-10, Speed 4.0 - 4.8 km/jam.', steps: 'Berjalan tegak tanpa berpegangan.', mistake: 'Berpegangan erat sambil condong ke belakang.' },
+      { id: 'plank', name: 'Forearm Plank & Core', muscle: 'Core', setup158: 'Siku di bawah bahu di atas matras.', steps: 'Kencangkan perut membentuk garis lurus.', mistake: 'Pinggul turun melengkung.' }
     ];
 
     const defaultFoods = [
       { name: 'Paket Ikan Bakar + Nasi 1/2 + Lalapan', cal: 460, prot: 34, tag: 'Omega-3 Tinggi' },
       { name: 'Soto Daging Sapi Bening + Telur Rebus + Nasi', cal: 420, prot: 28, tag: 'Tanpa Santan' },
-      { name: 'Pepes Tahu Tempe + 2 Telur Rebus + Sayur Bening', cal: 380, prot: 24, tag: 'Rendah Minyak' },
-      { name: 'Paha Ayam Bakar (Tanpa Kulit) + Nasi 1/2 + Sayur', cal: 450, prot: 30, tag: 'Tinggi Protein' },
+      { name: 'Pepes Tahu Tempe + 2 Telur Rebus', cal: 380, prot: 24, tag: 'Rendah Minyak' },
+      { name: 'Paha Ayam Bakar (Tanpa Kulit) + Nasi 1/2', cal: 450, prot: 30, tag: 'Tinggi Protein' },
       { name: 'Ikan Kuah Kuning / Asam Padeh + Nasi 1/2', cal: 410, prot: 32, tag: 'Bebas Gorengan' },
       { name: 'Camilan: Edamame Rebus + 2 Putih Telur', cal: 160, prot: 16, tag: 'Snack Sore Gym' }
     ];
@@ -418,7 +407,6 @@
 
     let isFirstPush = true;
 
-    // Load data lama dari semua versi agar tidak ada yang hilang
     function loadLocalBackup() {
       for (const k of LEGACY_KEYS) {
         try {
@@ -525,13 +513,11 @@
       }
     }
 
-    // ============================================================================
-    // TAB 1: BERAT BADAN & KALENDER 8 MINGGU
-    // ============================================================================
+    // TAB 1
     function logWeight() {
       const inp = document.getElementById('input-weight');
       const v = parseFloat(inp.value);
-      if (isNaN(v) || v < 35 || v > 150) return alert('Masukkan angka berat badan yang valid (contoh: 61.2)');
+      if (isNaN(v) || v < 35 || v > 150) return alert('Masukkan angka berat badan yang valid');
       appState.currentWeight = v;
       appState.weightHistory.push({ date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }), weight: v });
       inp.value = '';
@@ -631,9 +617,7 @@
       saveState();
     }
 
-    // ============================================================================
-    // TAB 2: MUSCLE RECOVERY, TIMERS & PROGRESSIVE OVERLOAD
-    // ============================================================================
+    // TAB 2
     function getMuscleRecoveryData() {
       const now = Date.now();
       const gs = [
@@ -857,7 +841,7 @@
           c++;
         }
       });
-      if (c === 0) return alert('Centang selesai ketiga set (Set 1, Set 2, Set 3) terlebih dahulu pada alat yang ingin dinaikkan bebannya!');
+      if (c === 0) return alert('Centang selesai ketiga set terlebih dahulu pada alat yang ingin dinaikkan bebannya!');
       if (typeof confetti === 'function') confetti({ particleCount: 55, spread: 70 });
       renderWorkoutSection();
       showToast(`🔥 ${c} alat berhasil naik ke target beban minggu depan!`);
@@ -871,9 +855,7 @@
       renderTutorials();
     }
 
-    // ============================================================================
-    // TAB 3: PANDUAN MESIN LENGKAP (14 ALAT)
-    // ============================================================================
+    // TAB 3
     function renderTutorials() {
       const q = (document.getElementById('search-tutorial').value || '').toLowerCase();
       document.getElementById('tutorial-cards-container').innerHTML = appState.tutorials
@@ -896,16 +878,14 @@
         `).join('');
     }
 
-    // ============================================================================
-    // TAB 4: NUTRISI, DONUT CHART & REAL-TIME AI VISION SCANNER
-    // ============================================================================
+    // TAB 4 & REAL-TIME AI SCANNER (STRICT JSON RESPONSE)
     function getActiveApiKey() {
       return localStorage.getItem('KIYAS_CUSTOM_GEMINI_KEY') || DEFAULT_GEMINI_API_KEY;
     }
 
     function changeApiKey() {
       const current = getActiveApiKey();
-      const input = prompt('🔑 API Key sudah langsung tertanam di sistem.\nJika suatu saat kamu ingin menggantinya dengan key baru, tempel di bawah ini:', current);
+      const input = prompt('🔑 API Key Gemini:', current);
       if (input && input.trim()) {
         localStorage.setItem('KIYAS_CUSTOM_GEMINI_KEY', input.trim());
         showToast('🔑 API Key diperbarui!');
@@ -916,7 +896,6 @@
       document.getElementById('ai-file-input').click();
     }
 
-    // Kompres gambar otomatis agar pengiriman ke AI super cepat & hemat kuota
     function compressImageToBase64(file, maxWidth = 800, quality = 0.75) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -952,7 +931,8 @@
       const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
       let lastError = null;
 
-      const promptText = 'Kamu adalah ahli gizi Indonesia. Lihat foto makanan ini dan identifikasi nama makanannya (dalam Bahasa Indonesia singkat, contoh: "Nasi Ayam Bakar + Lalapan") beserta perkiraan total kalori (kkal) dan protein (gram) untuk satu porsi yang terlihat. Kembalikan HANYA JSON murni tanpa markdown dengan format persis: {"name": "Nama Makanan", "cal": 450, "prot": 28}';
+      // Instruksi ketat agar AI murni merespons JSON angka tanpa markdown
+      const promptText = 'Analisis foto makanan ini. Berikan nama makanan, total kalori (kkal), dan protein (gram) secara akurat. Output WAJIB berupa teks JSON mentah tanpa markdown, tanpa backtick, dengan struktur persis seperti ini: {"name": "Nama Makanan", "cal": 450, "prot": 28}';
 
       for (const model of models) {
         try {
@@ -966,7 +946,7 @@
                   { inline_data: { mime_type: mimeType, data: base64Data } }
                 ]
               }],
-              generationConfig: { temperature: 0.2 }
+              generationConfig: { temperature: 0.1 }
             })
           });
 
@@ -997,7 +977,7 @@
         const compressed = await compressImageToBase64(file);
         document.getElementById('ai-preview-img').src = compressed.fullDataUrl;
         document.getElementById('ai-scan-modal').classList.remove('hidden');
-        document.getElementById('ai-scan-text').textContent = '🤖 AI sedang mengenali makananmu...';
+        document.getElementById('ai-scan-text').textContent = '🤖 AI sedang menghitung kalori & protein...';
 
         const apiKey = getActiveApiKey();
         const foodData = await callGeminiVision(apiKey, compressed.base64, compressed.mimeType);
@@ -1017,15 +997,14 @@
 
         renderNutrition();
         saveState();
-        if (typeof confetti === 'function') confetti({ particleCount: 40, spread: 60 });
+        if (typeof confetti === 'function') confetti({ particleCount: 45, spread: 65 });
         showToast(`✨ AI: ${cleanName} (+${calVal} kkal | ${protVal}g P)`);
       } catch (error) {
         console.error('AI Scan Error:', error);
         document.getElementById('ai-scan-modal').classList.add('hidden');
 
-        // Fallback pintar: tanyakan nama makanan jika koneksi/token terkendala agar pengguna tidak gagal mencatat
         const manualDesc = prompt(
-          '📸 Foto berhasil dipindai!\nMasukkan nama makanan di foto (contoh: "Nasi Ayam Bakar" atau "Bakso") untuk mengonfirmasi takaran kalorinya:',
+          '📸 Foto berhasil dipindai!\nMasukkan nama makanan di foto (contoh: "Nasi Ayam Bakar"):',
           'Nasi Ayam Bakar'
         );
         if (manualDesc && manualDesc.trim()) {
@@ -1040,7 +1019,7 @@
     function addCustomFood() {
       const inp = document.getElementById('custom-food-name');
       const name = inp.value.trim();
-      if (!name) return alert('Ketik nama makanan terlebih dahulu atau gunakan tombol Foto Makanan!');
+      if (!name) return alert('Ketik nama makanan terlebih dahulu!');
 
       const lower = name.toLowerCase();
       let cal = 0, prot = 0, matched = false;
@@ -1150,9 +1129,7 @@
     function resetDailyNutrition() { appState.loggedFoods = []; appState.skinChecks = {}; renderNutrition(); showToast('🔄 Log makan hari ini di-reset'); saveState(); }
     function toggleSkinHabit(id) { appState.skinChecks[id] = !appState.skinChecks[id]; renderNutrition(); saveState(); }
 
-    // ============================================================================
-    // FITUR 2: SHAREABLE RECAP CARD (IG STORY)
-    // ============================================================================
+    // RECAP CARD
     function openShareModal() {
       const tC = (appState.loggedFoods || []).reduce((s, f) => s + f.cal, 0);
       const tP = (appState.loggedFoods || []).reduce((s, f) => s + f.prot, 0);
@@ -1188,7 +1165,7 @@
       } catch (e) {
         alert('Gagal mengunduh otomatis, silakan screenshot langsung kartu di layar.');
       }
-      btn.textContent = '⬇️ Simpan & Pamerin ke SG second!';
+      btn.textContent = '⬇️ Simpan & Pamerin ke Ayang';
     }
 
     function refreshAllUI() {
