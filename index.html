@@ -12,41 +12,19 @@
     body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #fdf8f6; color: #1f2937; overflow-x: hidden; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-thumb { background: #f472b6; border-radius: 9999px; }
-
     @keyframes fadeInSlide { 0% { opacity: 0; transform: translateY(12px); } 100% { opacity: 1; transform: translateY(0); } }
     .animate-tab { animation: fadeInSlide 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes floatSlow { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-4px); } }
     .float-badge { animation: floatSlow 3s ease-in-out infinite; }
-    
     .card-hover { transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
     .card-hover:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 12px 24px -8px rgba(244, 63, 94, 0.18); }
     .btn-pop { transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1); }
     .btn-pop:active { transform: scale(0.92); }
-
-    /* Visual Donut Chart */
-    .donut-chart {
-      width: 104px; height: 104px; border-radius: 50%;
-      background: conic-gradient(#f43f5e var(--pct), #ffe4e6 0);
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.5s ease-out;
-    }
-    .donut-chart-prot {
-      width: 104px; height: 104px; border-radius: 50%;
-      background: conic-gradient(#10b981 var(--pct), #d1fae5 0);
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.5s ease-out;
-    }
-    .donut-inner {
-      width: 82px; height: 82px; background: white; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; flex-direction: column;
-    }
-
+    .donut-chart { width: 104px; height: 104px; border-radius: 50%; background: conic-gradient(#f43f5e var(--pct), #ffe4e6 0); display: flex; align-items: center; justify-content: center; transition: background 0.5s ease-out; }
+    .donut-chart-prot { width: 104px; height: 104px; border-radius: 50%; background: conic-gradient(#10b981 var(--pct), #d1fae5 0); display: flex; align-items: center; justify-content: center; transition: background 0.5s ease-out; }
+    .donut-inner { width: 82px; height: 82px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column; }
     @keyframes scanLaser { 0%, 100% { top: 2%; opacity: 0.85; } 50% { top: 94%; opacity: 1; } }
-    .laser-line {
-      position: absolute; left: 0; width: 100%; height: 3px;
-      background: #10b981; box-shadow: 0 0 16px 4px rgba(16, 185, 129, 0.7);
-      animation: scanLaser 1.6s ease-in-out infinite;
-    }
+    .laser-line { position: absolute; left: 0; width: 100%; height: 3px; background: #10b981; box-shadow: 0 0 16px 4px rgba(16, 185, 129, 0.7); animation: scanLaser 1.6s ease-in-out infinite; }
   </style>
 </head>
 <body class="min-h-screen pb-16">
@@ -56,56 +34,22 @@
     <span id="toast-text">✨ Berhasil!</span>
   </div>
 
-  <!-- MODAL AI SCANNER & SMART VISUAL ANALYZER -->
-  <div id="ai-scan-modal" class="hidden fixed inset-0 z-[75] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl p-5 w-full max-w-md text-center relative overflow-hidden shadow-2xl border-4 border-rose-200 my-auto">
+  <!-- MODAL AI SCANNER -->
+  <div id="ai-scan-modal" class="hidden fixed inset-0 z-[75] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-5 w-full max-w-sm text-center relative overflow-hidden shadow-2xl border-4 border-rose-200">
       <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2">
           <h3 class="font-extrabold text-gray-800 text-base">🤖 AI Food Scanner</h3>
-          <span class="text-[10px] font-bold bg-rose-100 text-rose-600 px-2.5 py-0.5 rounded-full">Fast Vision</span>
+          <span class="text-[10px] font-bold bg-rose-100 text-rose-600 px-2.5 py-0.5 rounded-full">Real-Time Vision</span>
         </div>
         <button onclick="cancelAIScan()" class="text-gray-400 hover:text-red-500 font-extrabold text-xl leading-none px-2 py-0.5 rounded-lg hover:bg-rose-50">&times;</button>
       </div>
-
-      <!-- Foto Preview -->
-      <div class="relative w-full h-52 bg-gray-100 rounded-2xl overflow-hidden mb-3 border-2 border-rose-100">
+      <div class="relative w-full aspect-square bg-gray-100 rounded-2xl overflow-hidden mb-3 border-2 border-rose-100">
         <img id="ai-preview-img" src="" class="w-full h-full object-cover" alt="Preview Makanan" />
-        <div id="ai-laser" class="laser-line"></div>
+        <div class="laser-line"></div>
       </div>
-
-      <!-- State 1: Sedang Scanning -->
-      <div id="ai-loading-state">
-        <p id="ai-scan-text" class="text-sm font-extrabold text-rose-600 animate-pulse">⚡ Memindai foto makanan (Maks 5 detik)...</p>
-        <p id="ai-scan-subtext" class="text-[11px] text-gray-400 mt-1">Mengirim gambar terkompresi ke server AI...</p>
-      </div>
-
-      <!-- State 2: Konfirmasi / Smart Plate Builder (Muncul otomatis jika API Key diblokir/timeout agar tidak pernah gagal) -->
-      <div id="ai-assist-state" class="hidden text-left space-y-3 pt-1">
-        <div class="bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-[11px] text-amber-800">
-          <strong class="block">📸 Foto Siap Dianalisis!</strong>
-          <span id="ai-assist-reason">Pilih item yang ada di piringmu atau ketik namanya di bawah untuk langsung menghitung nutrisi akurat:</span>
-        </div>
-
-        <div>
-          <label class="text-[11px] font-extrabold text-gray-600 uppercase tracking-wider block mb-1.5">Tap Komponen di Foto (Bisa pilih lebih dari 1):</label>
-          <div id="plate-chips" class="flex flex-wrap gap-1.5"></div>
-        </div>
-
-        <div>
-          <label class="text-[11px] font-extrabold text-gray-600 uppercase tracking-wider block mb-1">Nama / Rincian Makanan di Foto:</label>
-          <input type="text" id="ai-modal-food-input" oninput="recalcModalPreview()" placeholder="Cth: Mie Ayam Bakso / Nasi Ikan Bakar..." class="w-full border border-rose-200 rounded-xl px-3.5 py-2.5 text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-rose-400 bg-rose-50/30" />
-        </div>
-
-        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center justify-between">
-          <span class="text-xs font-extrabold text-emerald-900">Hasil Estimasi Nutrisi:</span>
-          <span id="ai-modal-live-macros" class="text-xs font-black bg-white text-emerald-700 px-3 py-1 rounded-lg border border-emerald-200">0 kkal • 0g Protein</span>
-        </div>
-
-        <div class="flex gap-2 pt-1">
-          <button onclick="cancelAIScan()" class="w-1/3 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-xs py-3 rounded-xl transition">Batal</button>
-          <button onclick="confirmModalFood()" class="w-2/3 btn-pop bg-gradient-to-r from-rose-500 to-fuchsia-600 text-white font-extrabold text-xs py-3 rounded-xl shadow-md">✅ Tambahkan ke Kalori Harian</button>
-        </div>
-      </div>
+      <p id="ai-scan-text" class="text-sm font-extrabold text-rose-600 animate-pulse">⚡ AI sedang mengenali makanan di foto...</p>
+      <p id="ai-scan-subtext" class="text-[11px] text-gray-400 mt-1">Menghitung porsi, kalori & protein secara otomatis...</p>
     </div>
   </div>
 
@@ -118,19 +62,15 @@
         <h3 class="font-extrabold text-gray-800">📸 Preview Kartu Laporan</h3>
         <button onclick="closeShareModal()" class="text-gray-400 hover:text-red-500 font-bold text-2xl leading-none">&times;</button>
       </div>
-      
       <div id="capture-area" class="bg-gradient-to-br from-rose-500 via-pink-500 to-fuchsia-600 rounded-3xl p-6 text-white text-center relative overflow-hidden shadow-xl mb-4 aspect-[4/5] flex flex-col justify-center">
         <div class="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
         <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-fuchsia-400/20 rounded-full blur-2xl"></div>
-        
         <h2 class="font-black text-3xl tracking-tight leading-none mb-1 relative z-10">KIYA'S FIT ✨</h2>
         <p class="text-rose-100 font-bold text-[10px] uppercase tracking-widest mb-5 relative z-10" id="share-date">Hari Ini</p>
-        
         <div class="bg-white/20 border border-white/25 rounded-2xl p-3.5 mb-3 relative z-10">
           <div class="text-[10px] uppercase font-bold text-rose-100 tracking-wider">Progres Sesi Gym</div>
           <div id="share-gym-status" class="text-lg font-extrabold mt-0.5">0 / 40 Sesi Selesai</div>
         </div>
-
         <div class="grid grid-cols-2 gap-3 mb-3 relative z-10">
           <div class="bg-white/20 border border-white/25 rounded-2xl p-3">
             <div class="text-[10px] uppercase font-bold text-rose-100">Sisa Kalori</div>
@@ -143,12 +83,10 @@
             <div class="text-[10px] text-rose-100 mt-0.5" id="share-recovery-badge">Otot Prima</div>
           </div>
         </div>
-
         <div class="text-sm font-black bg-white text-rose-600 py-2.5 px-5 rounded-xl shadow-md inline-block mx-auto mt-2 relative z-10">
           Berat Badan: <span id="share-weight-text">62.0</span> kg
         </div>
       </div>
-
       <button onclick="downloadCard()" id="btn-download-card" class="btn-pop w-full bg-gray-900 hover:bg-black text-white font-bold py-3.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2">
         ⬇️ Simpan & Pamerin ke Ayang
       </button>
@@ -196,13 +134,11 @@
             <button onclick="logWeight()" class="btn-pop bg-gray-900 hover:bg-black text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-xl transition shadow-lg">+ Simpan BB</button>
           </div>
         </div>
-
         <div class="grid grid-cols-3 gap-3 mb-5 text-center">
           <div class="bg-gray-50 rounded-2xl p-4 card-hover border border-gray-100"><span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1">BB Awal</span><span class="text-xl sm:text-2xl font-black text-gray-700">62.0<span class="text-sm font-bold text-gray-400 ml-1">kg</span></span></div>
           <div class="bg-gradient-to-b from-rose-50 to-pink-50 rounded-2xl p-4 border border-rose-200 card-hover shadow-sm"><span class="text-[10px] font-bold uppercase tracking-wider text-rose-400 block mb-1">BB Saat Ini</span><span id="current-weight-display" class="text-xl sm:text-2xl font-black text-rose-600">62.0 kg</span></div>
           <div class="bg-emerald-50 rounded-2xl p-4 card-hover border border-emerald-100"><span class="text-[10px] font-bold uppercase tracking-wider text-emerald-500 block mb-1">Target Ideal</span><span class="text-xl sm:text-2xl font-black text-emerald-600">55.0<span class="text-sm font-bold text-emerald-400 ml-1">kg</span></span></div>
         </div>
-
         <div class="mb-2">
           <div class="flex justify-between text-xs font-bold mb-2"><span id="weight-lost-text" class="text-rose-500 bg-rose-50 px-2 py-0.5 rounded-md">Turun: 0.0 kg</span><span id="weight-pct-text" class="text-gray-400">0% Selesai</span></div>
           <div class="w-full h-4 bg-gray-100 rounded-full overflow-hidden p-0.5 shadow-inner"><div id="weight-progress-bar" class="h-full bg-gradient-to-r from-rose-400 via-pink-500 to-fuchsia-500 rounded-full transition-all duration-1000" style="width: 5%"></div></div>
@@ -346,10 +282,9 @@
             <button onclick="openAIScanner()" class="btn-pop bg-gradient-to-r from-rose-500 to-fuchsia-600 hover:from-rose-600 hover:to-fuchsia-700 text-white font-extrabold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-md flex items-center justify-center gap-2">
               📸 Foto Makanan (AI Scan)
             </button>
-            <input type="text" id="custom-food-name" onkeydown="if(event.key==='Enter') addCustomFood()" placeholder="Ketik makanan apa saja (cth: Seblak Ceker / 2 Telur Rebus)..." class="flex-1 border border-rose-200 rounded-xl px-4 py-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 bg-white" />
+            <input type="text" id="custom-food-name" onkeydown="if(event.key==='Enter') addCustomFood()" placeholder="Ketik makanan apa saja (cth: Mie Ayam / 2 Telur Rebus)..." class="flex-1 border border-rose-200 rounded-xl px-4 py-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 bg-white" />
             <button onclick="addCustomFood()" id="btn-calc-text" class="btn-pop bg-gray-900 hover:bg-black text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-sm transition">+ Hitung</button>
           </div>
-          <!-- Kotak Hasil Deteksi AI Terbaru -->
           <div id="ai-last-result" class="hidden mt-3 bg-white/95 border border-emerald-200 rounded-xl p-3 flex items-center justify-between gap-2 shadow-sm">
             <div class="text-xs">
               <span class="font-extrabold text-emerald-700 block" id="ai-res-title">✅ Terdeteksi: -</span>
@@ -357,7 +292,7 @@
             </div>
             <span id="ai-res-macros" class="text-xs font-black bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 shrink-0">0 kkal • 0g P</span>
           </div>
-          <p class="text-[11px] text-rose-700/80 mt-2 font-medium">✨ Klik <strong>Foto Makanan</strong> untuk memotret piring makanmu. Sistem paralel cepat selesai dalam ~2 detik!</p>
+          <p class="text-[11px] text-rose-700/80 mt-2 font-medium">✨ Klik <strong>Foto Makanan</strong> untuk memotret piring makanmu dan biarkan AI mengenali makanan serta menghitung kalori & proteinnya secara langsung!</p>
         </div>
 
         <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Rekomendasi Menu Warung (Klik untuk Tambah):</h3>
@@ -388,20 +323,20 @@
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwasCavBij_b5CwoaLuL6Mr8K29CbVA8PxGfUdrrIUEUZKaerfvHBOqCptUUVkikW4/exec';
 
     const exerciseMeta = {
-      leg_press:      { step: 2.5, group: 'lower', label: 'Lower Body' },
-      goblet_squat:   { step: 2.0, group: 'lower', label: 'Lower Body' },
-      leg_ext:        { step: 2.5, group: 'lower', label: 'Lower Body' },
-      lat_pulldown:   { step: 2.0, group: 'upper', label: 'Upper Body' },
-      cable_row:      { step: 2.0, group: 'upper', label: 'Upper Body' },
-      chest_press:    { step: 2.0, group: 'upper', label: 'Upper Body' },
-      lateral_raise:  { step: 1.0, group: 'upper', label: 'Upper Body' },
-      incline_walk:   { step: 0,   group: 'core',  label: 'Cardio & Core' },
-      plank:          { step: 0,   group: 'core',  label: 'Cardio & Core' },
-      rdl:            { step: 2.0, group: 'lower', label: 'Lower Body' },
-      leg_curl:       { step: 2.5, group: 'lower', label: 'Lower Body' },
-      hip_abduction:  { step: 2.5, group: 'lower', label: 'Lower Body' },
+      leg_press: { step: 2.5, group: 'lower', label: 'Lower Body' },
+      goblet_squat: { step: 2.0, group: 'lower', label: 'Lower Body' },
+      leg_ext: { step: 2.5, group: 'lower', label: 'Lower Body' },
+      lat_pulldown: { step: 2.0, group: 'upper', label: 'Upper Body' },
+      cable_row: { step: 2.0, group: 'upper', label: 'Upper Body' },
+      chest_press: { step: 2.0, group: 'upper', label: 'Upper Body' },
+      lateral_raise: { step: 1.0, group: 'upper', label: 'Upper Body' },
+      incline_walk: { step: 0, group: 'core', label: 'Cardio & Core' },
+      plank: { step: 0, group: 'core', label: 'Cardio & Core' },
+      rdl: { step: 2.0, group: 'lower', label: 'Lower Body' },
+      leg_curl: { step: 2.5, group: 'lower', label: 'Lower Body' },
+      hip_abduction: { step: 2.5, group: 'lower', label: 'Lower Body' },
       shoulder_press: { step: 1.5, group: 'upper', label: 'Upper Body' },
-      face_pull:      { step: 1.5, group: 'upper', label: 'Upper Body' }
+      face_pull: { step: 1.5, group: 'upper', label: 'Upper Body' }
     };
 
     const defaultWorkouts = {
@@ -460,6 +395,7 @@
     };
 
     let isFirstPush = true;
+    let activeScanController = null;
 
     function loadLocalBackup() {
       for (const k of LEGACY_KEYS) {
@@ -468,12 +404,7 @@
           if (raw) {
             const parsed = JSON.parse(raw);
             if (parsed && typeof parsed === 'object') {
-              appState = {
-                ...appState,
-                ...parsed,
-                tutorials: defaultTutorials,
-                muscleLastTrained: { lower: 0, upper: 0, core: 0, ...(parsed.muscleLastTrained || {}) }
-              };
+              appState = { ...appState, ...parsed, tutorials: defaultTutorials, muscleLastTrained: { lower: 0, upper: 0, core: 0, ...(parsed.muscleLastTrained || {}) } };
               break;
             }
           }
@@ -511,12 +442,7 @@
         if (text && text.trim().startsWith('{')) {
           const data = JSON.parse(text);
           if (Object.keys(data).length > 0) {
-            appState = {
-              ...appState,
-              ...data,
-              tutorials: defaultTutorials,
-              muscleLastTrained: { lower: 0, upper: 0, core: 0, ...(data.muscleLastTrained || {}) }
-            };
+            appState = { ...appState, ...data, tutorials: defaultTutorials, muscleLastTrained: { lower: 0, upper: 0, core: 0, ...(data.muscleLastTrained || {}) } };
             isFirstPush = false;
             try { localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); } catch (e) {}
             refreshAllUI();
@@ -561,13 +487,10 @@
           ? 'btn-pop tab-btn py-3 px-3 rounded-xl font-bold text-xs sm:text-sm transition bg-rose-500 text-white shadow-md'
           : 'btn-pop tab-btn py-3 px-3 rounded-xl font-bold text-xs sm:text-sm transition text-gray-500 hover:bg-rose-50 hover:text-rose-600';
       });
-      if (tName === 'gym') {
-        renderMuscleRecovery();
-        renderWorkoutSection();
-      }
+      if (tName === 'gym') { renderMuscleRecovery(); renderWorkoutSection(); }
     }
 
-    // TAB 1
+    // TAB 1: WEIGHT & CALENDAR
     function logWeight() {
       const inp = document.getElementById('input-weight');
       const v = parseFloat(inp.value);
@@ -596,7 +519,6 @@
       document.getElementById('weight-lost-text').textContent = 'Turun: ' + lost.toFixed(1) + ' kg';
       document.getElementById('weight-pct-text').textContent = pct + '% Selesai';
       document.getElementById('weight-progress-bar').style.width = pct + '%';
-
       document.getElementById('weight-history-list').innerHTML = (appState.weightHistory || []).map((item, idx) => `
         <span class="bg-rose-50 border border-rose-100 px-3 py-1 rounded-xl font-semibold flex items-center gap-1.5">
           <span>${item.date}: <strong class="text-rose-600">${Number(item.weight).toFixed(1)} kg</strong></span>
@@ -606,13 +528,13 @@
     }
 
     const dayScheduleTemplate = [
-      { offset: 0, label: 'Senin',  dayKey: 'senin',  group: 'lower', title: 'Lower Body (Glutes & Quads)' },
+      { offset: 0, label: 'Senin', dayKey: 'senin', group: 'lower', title: 'Lower Body (Glutes & Quads)' },
       { offset: 1, label: 'Selasa', dayKey: 'selasa', group: 'upper', title: 'Upper Body & Postur' },
-      { offset: 2, label: 'Rabu',   dayKey: 'rabu',   group: 'core',  title: 'Active Recovery Cardio' },
-      { offset: 3, label: 'Kamis',  dayKey: null,     group: null,    title: 'Istirahat & Pemulihan' },
-      { offset: 4, label: 'Jumat',  dayKey: 'jumat',  group: 'lower', title: 'Lower Body (Hamstring)' },
-      { offset: 5, label: 'Sabtu',  dayKey: 'sabtu',  group: 'full',  title: 'Full Body Circuit' },
-      { offset: 6, label: 'Minggu', dayKey: null,     group: null,    title: 'Rest Day & Santai' }
+      { offset: 2, label: 'Rabu', dayKey: 'rabu', group: 'core', title: 'Active Recovery Cardio' },
+      { offset: 3, label: 'Kamis', dayKey: null, group: null, title: 'Istirahat & Pemulihan' },
+      { offset: 4, label: 'Jumat', dayKey: 'jumat', group: 'lower', title: 'Lower Body (Hamstring)' },
+      { offset: 5, label: 'Sabtu', dayKey: 'sabtu', group: 'full', title: 'Full Body Circuit' },
+      { offset: 6, label: 'Minggu', dayKey: null, group: null, title: 'Rest Day & Santai' }
     ];
 
     function renderCalendar() {
@@ -633,7 +555,6 @@
         if (!d.dayKey) {
           return `<div class="rounded-2xl p-4 bg-gray-50 border border-gray-100 flex flex-col justify-between"><div><div class="flex justify-between text-xs font-bold text-gray-400 mb-1"><span>${d.label}</span><span>${df}</span></div><div class="text-xs font-bold text-gray-500 mt-1">${d.title}</div></div><span class="text-[10px] font-bold text-gray-400 mt-3">💤 Rest Day</span></div>`;
         }
-
         return `<div class="card-hover rounded-2xl p-4 border transition flex flex-col justify-between ${isDone ? 'bg-emerald-50/80 border-emerald-300' : 'bg-white border-rose-100'}">
           <div>
             <div class="flex justify-between text-xs font-bold ${isDone ? 'text-emerald-700' : 'text-rose-500'}"><span>${d.label}</span><span>${df}</span></div>
@@ -656,41 +577,28 @@
       appState.completedDates[dk] = !appState.completedDates[dk];
       if (appState.completedDates[dk]) {
         const now = Date.now();
-        if (grp === 'full') {
-          appState.muscleLastTrained.lower = now;
-          appState.muscleLastTrained.upper = now;
-          appState.muscleLastTrained.core = now;
-        } else if (grp) {
-          appState.muscleLastTrained[grp] = now;
-        }
+        if (grp === 'full') { appState.muscleLastTrained.lower = now; appState.muscleLastTrained.upper = now; appState.muscleLastTrained.core = now; }
+        else if (grp) { appState.muscleLastTrained[grp] = now; }
         if (typeof confetti === 'function') confetti({ particleCount: 55, spread: 70 });
         showToast('🔥 Mantap! Sesi latihan selesai!');
       }
-      renderCalendar();
-      renderMuscleRecovery();
-      saveState();
+      renderCalendar(); renderMuscleRecovery(); saveState();
     }
 
-    // TAB 2
+    // TAB 2: GYM & OVERLOAD
     function getMuscleRecoveryData() {
       const now = Date.now();
       const gs = [
         { k: 'lower', n: '🦵 Lower Body (Kaki & Glutes)', w: 48 },
         { k: 'upper', n: '💪 Upper Body (Bahu & Punggung)', w: 48 },
-        { k: 'core',  n: '🧱 Core & Stamina', w: 24 }
+        { k: 'core', n: '🧱 Core & Stamina', w: 24 }
       ];
       return gs.map(g => {
         const last = (appState.muscleLastTrained && appState.muscleLastTrained[g.k]) || 0;
-        let pct = 100;
-        if (last > 0) {
-          pct = Math.min(100, Math.max(15, Math.round((((now - last) / (1000 * 60 * 60)) / g.w) * 100)));
-        }
+        let pct = last > 0 ? Math.min(100, Math.max(15, Math.round((((now - last) / (1000 * 60 * 60)) / g.w) * 100))) : 100;
         let st = 'Prima (Siap Overload)', c = 'bg-emerald-500', bc = 'bg-emerald-50 text-emerald-700 border-emerald-200';
-        if (pct < 55) {
-          st = 'Lelah (Butuh Istirahat)'; c = 'bg-rose-500'; bc = 'bg-rose-50 text-rose-700 border-rose-200';
-        } else if (pct < 85) {
-          st = 'Masa Pemulihan'; c = 'bg-amber-500'; bc = 'bg-amber-50 text-amber-700 border-amber-200';
-        }
+        if (pct < 55) { st = 'Lelah (Butuh Istirahat)'; c = 'bg-rose-500'; bc = 'bg-rose-50 text-rose-700 border-rose-200'; }
+        else if (pct < 85) { st = 'Masa Pemulihan'; c = 'bg-amber-500'; bc = 'bg-amber-50 text-amber-700 border-amber-200'; }
         return { ...g, pct, st, c, bc };
       });
     }
@@ -703,9 +611,7 @@
             <span class="text-xs font-extrabold text-gray-800">${m.n}</span>
             <span class="text-xs font-black text-rose-600">${m.pct}%</span>
           </div>
-          <div class="w-full h-2 bg-gray-200 rounded-full mb-2.5 overflow-hidden">
-            <div class="h-full ${m.c} transition-all duration-500" style="width:${m.pct}%"></div>
-          </div>
+          <div class="w-full h-2 bg-gray-200 rounded-full mb-2.5 overflow-hidden"><div class="h-full ${m.c} transition-all duration-500" style="width:${m.pct}%"></div></div>
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-md border ${m.bc}">${m.st}</span>
             <button onclick="resetMuscle('${m.k}')" class="text-[10px] text-gray-400 hover:text-rose-600 font-bold">Pulihkan</button>
@@ -717,32 +623,19 @@
       const act = data.find(d => d.k === (curGroup === 'full' ? 'lower' : curGroup)) || data[0];
       const adv = document.getElementById('recovery-advice-badge');
       if (adv && act) {
-        if (act.pct >= 85) {
-          adv.textContent = `🔥 Otot ${act.pct}% Prima — Siap gas target Progressive Overload!`;
-          adv.className = 'text-[11px] font-bold bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-xl border border-emerald-200';
-        } else if (act.pct >= 55) {
-          adv.textContent = `⚡ Pemulihan (${act.pct}%) — Gunakan beban normal & jaga form.`;
-          adv.className = 'text-[11px] font-bold bg-amber-50 text-amber-700 px-3 py-1.5 rounded-xl border border-amber-200';
-        } else {
-          adv.textContent = `⚠️ Otot Lelah (${act.pct}%) — Disarankan Deload (kurangi beban 10%).`;
-          adv.className = 'text-[11px] font-bold bg-rose-50 text-rose-700 px-3 py-1.5 rounded-xl border border-rose-200';
-        }
+        if (act.pct >= 85) { adv.textContent = `🔥 Otot ${act.pct}% Prima — Siap gas target Progressive Overload!`; adv.className = 'text-[11px] font-bold bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-xl border border-emerald-200'; }
+        else if (act.pct >= 55) { adv.textContent = `⚡ Pemulihan (${act.pct}%) — Gunakan beban normal & jaga form.`; adv.className = 'text-[11px] font-bold bg-amber-50 text-amber-700 px-3 py-1.5 rounded-xl border border-amber-200'; }
+        else { adv.textContent = `⚠️ Otot Lelah (${act.pct}%) — Disarankan Deload (kurangi beban 10%).`; adv.className = 'text-[11px] font-bold bg-rose-50 text-rose-700 px-3 py-1.5 rounded-xl border border-rose-200'; }
       }
     }
 
-    function resetMuscle(k) {
-      appState.muscleLastTrained[k] = 0;
-      renderMuscleRecovery();
-      showToast('✨ Status otot dipulihkan ke 100%');
-      saveState();
-    }
+    function resetMuscle(k) { appState.muscleLastTrained[k] = 0; renderMuscleRecovery(); showToast('✨ Status otot dipulihkan ke 100%'); saveState(); }
 
     let sessionSec = 3600, sInt = null, restSec = 60, rInt = null;
     function toggleSessionTimer() {
       const btn = document.getElementById('btn-session-timer');
-      if (sInt) {
-        clearInterval(sInt); sInt = null; btn.textContent = '▶ Lanjut';
-      } else {
+      if (sInt) { clearInterval(sInt); sInt = null; btn.textContent = '▶ Lanjut'; }
+      else {
         btn.textContent = '⏸ Pause';
         sInt = setInterval(() => {
           if (sessionSec > 0) {
@@ -756,26 +649,15 @@
         }, 1000);
       }
     }
-    function resetSessionTimer() {
-      clearInterval(sInt); sInt = null; sessionSec = 3600;
-      document.getElementById('session-timer-display').textContent = '60:00';
-      document.getElementById('btn-session-timer').textContent = '▶ Mulai';
-    }
+    function resetSessionTimer() { clearInterval(sInt); sInt = null; sessionSec = 3600; document.getElementById('session-timer-display').textContent = '60:00'; document.getElementById('btn-session-timer').textContent = '▶ Mulai'; }
     function startRestTimer(sec) {
       clearInterval(rInt); restSec = sec; updateRestDisplay();
       rInt = setInterval(() => {
-        if (restSec > 0) {
-          restSec--; updateRestDisplay();
-        } else {
-          clearInterval(rInt); rInt = null;
-          document.getElementById('rest-timer-display').textContent = 'SIAP! 🔥';
-          showToast('⚡ Istirahat selesai! Lanjut set berikutnya!');
-        }
+        if (restSec > 0) { restSec--; updateRestDisplay(); }
+        else { clearInterval(rInt); rInt = null; document.getElementById('rest-timer-display').textContent = 'SIAP! 🔥'; showToast('⚡ Istirahat selesai! Lanjut set berikutnya!'); }
       }, 1000);
     }
-    function updateRestDisplay() {
-      document.getElementById('rest-timer-display').textContent = `${String(Math.floor(restSec / 60)).padStart(2, '0')}:${String(restSec % 60).padStart(2, '0')}`;
-    }
+    function updateRestDisplay() { document.getElementById('rest-timer-display').textContent = `${String(Math.floor(restSec / 60)).padStart(2, '0')}:${String(restSec % 60).padStart(2, '0')}`; }
 
     let wTimeout = null;
     function renderWorkoutSection() {
@@ -812,16 +694,8 @@
                     <button onclick="jumpToTutorial('${ex.id}')" class="text-[11px] bg-white border border-rose-200 text-rose-600 font-bold px-2.5 py-0.5 rounded-lg hover:bg-rose-50">📖 Cara Pakai</button>
                   </div>
                   <p class="text-xs text-gray-500 font-semibold mt-1">${ex.sets}</p>
-                  ${isN ? `
-                    <div class="mt-2">
-                      ${allD
-                        ? `<span class="inline-block text-[11px] font-extrabold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-lg">🔥 Lulus 3 Set! Target Minggu Depan: ${nxtFormatted} kg (+${meta.step} kg)</span>`
-                        : `<span class="inline-block text-[11px] font-semibold text-gray-600 bg-white border border-rose-100 px-2.5 py-1 rounded-lg">📈 Proyeksi Overload: <strong>${nxtFormatted} kg (+${meta.step} kg)</strong> jika 3 set selesai</span>`
-                      }
-                    </div>
-                  ` : ''}
+                  ${isN ? `<div class="mt-2">${allD ? `<span class="inline-block text-[11px] font-extrabold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-lg">🔥 Lulus 3 Set! Target Minggu Depan: ${nxtFormatted} kg (+${meta.step} kg)</span>` : `<span class="inline-block text-[11px] font-semibold text-gray-600 bg-white border border-rose-100 px-2.5 py-1 rounded-lg">📈 Proyeksi Overload: <strong>${nxtFormatted} kg (+${meta.step} kg)</strong> jika 3 set selesai</span>`}</div>` : ''}
                 </div>
-
                 <div class="flex flex-wrap items-center gap-3">
                   <div class="flex items-center bg-white rounded-xl border border-rose-200 p-1 shadow-sm">
                     ${isN ? `<button onclick="stepEx('${curKey}', ${i}, -${meta.step})" class="w-7 h-7 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-black text-xs">-</button>` : `<span class="text-[10px] font-bold text-gray-400 px-2">Beban:</span>`}
@@ -831,7 +705,6 @@
                     </div>
                     ${isN ? `<button onclick="stepEx('${curKey}', ${i}, ${meta.step})" class="w-7 h-7 rounded-lg bg-rose-500 hover:bg-rose-600 text-white font-black text-xs">+</button>` : ''}
                   </div>
-
                   <div class="flex gap-1.5">
                     ${[1, 2, 3].map(s => {
                       const sk = `${curKey}_${i}_s${s}`;
@@ -848,38 +721,24 @@
     }
 
     function selectWorkoutDay(k) { appState.selectedWorkoutDay = k; renderMuscleRecovery(); renderWorkoutSection(); saveState(); }
-
     function stepEx(d, i, delta) {
       const e = appState.workouts[d].exercises[i];
       const cur = parseFloat(e.weight);
       if (isNaN(cur)) return;
       const n = Math.max(1, cur + delta);
       e.weight = Number.isInteger(n) ? String(n) : n.toFixed(1);
-      renderWorkoutSection();
-      showToast(`💪 Beban diatur ke ${e.weight} kg`);
-      saveState();
+      renderWorkoutSection(); showToast(`💪 Beban diatur ke ${e.weight} kg`); saveState();
     }
-
-    function updateEx(d, i, v) {
-      appState.workouts[d].exercises[i].weight = v;
-      clearTimeout(wTimeout);
-      wTimeout = setTimeout(() => { renderWorkoutSection(); saveState(); }, 600);
-    }
-
+    function updateEx(d, i, v) { appState.workouts[d].exercises[i].weight = v; clearTimeout(wTimeout); wTimeout = setTimeout(() => { renderWorkoutSection(); saveState(); }, 600); }
     function toggleSet(sk, id) {
       appState.completedSets[sk] = !appState.completedSets[sk];
       if (appState.completedSets[sk]) {
         const meta = exerciseMeta[id] || { step: 2.0, group: 'lower' };
         const rt = meta.step >= 2.5 ? 90 : 60;
-        startRestTimer(rt);
-        appState.muscleLastTrained[meta.group] = Date.now();
-        showToast(`✅ Set Selesai! Istirahat ${rt} detik`);
+        startRestTimer(rt); appState.muscleLastTrained[meta.group] = Date.now(); showToast(`✅ Set Selesai! Istirahat ${rt} detik`);
       }
-      renderWorkoutSection();
-      renderMuscleRecovery();
-      saveState();
+      renderWorkoutSection(); renderMuscleRecovery(); saveState();
     }
-
     function applyDayOverload() {
       let c = 0;
       const curKey = appState.selectedWorkoutDay;
@@ -889,19 +748,14 @@
         if (!isNaN(cur) && meta.step > 0 && appState.completedSets[`${curKey}_${i}_s1`] && appState.completedSets[`${curKey}_${i}_s2`] && appState.completedSets[`${curKey}_${i}_s3`]) {
           const nx = cur + meta.step;
           ex.weight = Number.isInteger(nx) ? String(nx) : nx.toFixed(1);
-          appState.completedSets[`${curKey}_${i}_s1`] = false;
-          appState.completedSets[`${curKey}_${i}_s2`] = false;
-          appState.completedSets[`${curKey}_${i}_s3`] = false;
+          appState.completedSets[`${curKey}_${i}_s1`] = false; appState.completedSets[`${curKey}_${i}_s2`] = false; appState.completedSets[`${curKey}_${i}_s3`] = false;
           c++;
         }
       });
       if (c === 0) return alert('Centang selesai ketiga set terlebih dahulu pada alat yang ingin dinaikkan bebannya!');
       if (typeof confetti === 'function') confetti({ particleCount: 55, spread: 70 });
-      renderWorkoutSection();
-      showToast(`🔥 ${c} alat berhasil naik ke target beban minggu depan!`);
-      saveState();
+      renderWorkoutSection(); showToast(`🔥 ${c} alat berhasil naik ke target beban minggu depan!`); saveState();
     }
-
     function jumpToTutorial(id) {
       switchTab('tutorial');
       const found = appState.tutorials.find(t => t.id === id);
@@ -909,7 +763,7 @@
       renderTutorials();
     }
 
-    // TAB 3
+    // TAB 3: TUTORIALS
     function renderTutorials() {
       const q = (document.getElementById('search-tutorial').value || '').toLowerCase();
       document.getElementById('tutorial-cards-container').innerHTML = appState.tutorials
@@ -932,30 +786,7 @@
         `).join('');
     }
 
-    // =========================================================================
-    // TAB 4: ULTRA-FAST PARALLEL AI VISION + SMART INDONESIAN NUTRITION ENGINE
-    // =========================================================================
-    let activeScanController = null;
-    const plateQuickItems = [
-      { label: '🍚 Nasi 1/2 Porsi', name: 'Nasi 1/2 Porsi', cal: 100, prot: 2 },
-      { label: '🍚 Nasi 1 Porsi', name: 'Nasi Putih', cal: 180, prot: 4 },
-      { label: '🍗 Ayam Bakar/Panggang', name: 'Ayam Bakar', cal: 220, prot: 26 },
-      { label: '🍗 Ayam Goreng/Geprek', name: 'Ayam Goreng', cal: 290, prot: 24 },
-      { label: '🐟 Ikan Bakar/Kuah', name: 'Ikan Bakar/Kuah', cal: 190, prot: 28 },
-      { label: '🐟 Ikan Goreng', name: 'Ikan Goreng', cal: 250, prot: 26 },
-      { label: '🥚 1 Telur Rebus', name: 'Telur Rebus', cal: 75, prot: 6 },
-      { label: '🍳 Telur Dadar/Ceplok', name: 'Telur Dadar/Ceplok', cal: 120, prot: 6 },
-      { label: '🥩 Daging Sapi/Rendang', name: 'Olahan Daging Sapi', cal: 270, prot: 25 },
-      { label: '🍲 Bakso / Soto / Sup', name: 'Semangkuk Bakso/Soto', cal: 320, prot: 20 },
-      { label: '🍜 Mie / Bakmi / Seblak', name: 'Olahan Mie/Seblak', cal: 370, prot: 12 },
-      { label: '🍢 Sate Ayam/Sapi', name: 'Sate (1 Porsi)', cal: 330, prot: 28 },
-      { label: '🟫 Tahu & Tempe', name: 'Tahu & Tempe', cal: 140, prot: 10 },
-      { label: '🥗 Sayur / Lalapan', name: 'Sayur & Lalapan', cal: 80, prot: 4 },
-      { label: '🍌 Buah / Pisang / Apel', name: 'Buah Segar', cal: 100, prot: 1.5 },
-      { label: '🧋 Minuman Manis / Es', name: 'Minuman Manis', cal: 160, prot: 2 }
-    ];
-    let selectedPlateIndices = new Set();
-
+    // TAB 4: DUAL-ENGINE AI VISION SCANNER (KEY AQ. + ZERO-KEY VISION BACKUP)
     function getActiveApiKey() {
       const saved = localStorage.getItem('KIYAS_CUSTOM_GEMINI_KEY');
       if (!saved || saved === OLD_BROKEN_KEY) return DEFAULT_GEMINI_API_KEY;
@@ -964,27 +795,21 @@
 
     function changeApiKey() {
       const current = getActiveApiKey();
-      const input = prompt('🔑 Masukkan API Key Google AI Studio (AIzaSy... atau AQ...):', current);
+      const input = prompt('🔑 Masukkan API Key Google AI Studio / Vertex AI:', current);
       if (input && input.trim()) {
         localStorage.setItem('KIYAS_CUSTOM_GEMINI_KEY', input.trim());
         showToast('🔑 API Key berhasil disimpan!');
       }
     }
 
-    function openAIScanner() {
-      document.getElementById('ai-file-input').click();
-    }
+    function openAIScanner() { document.getElementById('ai-file-input').click(); }
 
     function cancelAIScan() {
-      if (activeScanController) {
-        activeScanController.abort();
-        activeScanController = null;
-      }
+      if (activeScanController) { activeScanController.abort(); activeScanController = null; }
       document.getElementById('ai-scan-modal').classList.add('hidden');
     }
 
-    // Kompresi super cepat (480px, kualitas 0.65 -> hanya ~25KB agar upload selesai < 0.2 detik)
-    function compressImageToBase64(file, maxWidth = 480, quality = 0.65) {
+    function compressImageToBase64(file, maxWidth = 512, quality = 0.72) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -994,20 +819,12 @@
           img.onload = () => {
             const canvas = document.createElement('canvas');
             let w = img.width, h = img.height;
-            if (w > maxWidth) {
-              h = Math.round((h * maxWidth) / w);
-              w = maxWidth;
-            }
-            canvas.width = w;
-            canvas.height = h;
+            if (w > maxWidth) { h = Math.round((h * maxWidth) / w); w = maxWidth; }
+            canvas.width = w; canvas.height = h;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, w, h);
             const dataUrl = canvas.toDataURL('image/jpeg', quality);
-            resolve({
-              fullDataUrl: dataUrl,
-              base64: dataUrl.split(',')[1],
-              mimeType: 'image/jpeg'
-            });
+            resolve({ fullDataUrl: dataUrl, base64: dataUrl.split(',')[1], mimeType: 'image/jpeg' });
           };
           img.onerror = err => reject(err);
         };
@@ -1015,34 +832,19 @@
       });
     }
 
-    function parseAIJsonResponse(rawText) {
-      const cleaned = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
-      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error('JSON tidak valid');
-      const parsed = JSON.parse(jsonMatch[0]);
+    function parseCleanJson(rawText) {
+      const match = (rawText || '').replace(/```json|```/gi, '').match(/\{[\s\S]*\}/);
+      if (!match) throw new Error('Format JSON tidak ditemukan');
+      const parsed = JSON.parse(match[0]);
       if (!parsed.name) throw new Error('Nama makanan kosong');
       return parsed;
     }
 
-    // Menembak semua kandidat endpoint secara PARALEL (Promise.any) agar selesai dalam 1,5 - 3 detik!
-    async function callGeminiVisionFast(apiKey, base64Data, mimeType, signal) {
+    async function callGeminiVision(apiKey, base64Data, mimeType, signal) {
+      const promptText = 'Identifikasi makanan atau minuman yang terlihat di foto ini beserta perkiraan porsinya dalam Bahasa Indonesia (contoh: "Mie Ayam Bakso", "Nasi Putih & Ikan Goreng", "2 Telur Rebus"). Hitung estimasi total kalori (kkal) dan protein (gram). Balas HANYA dengan teks JSON murni tanpa markdown: {"name": "Nama Makanan Spesifik", "cal": 420, "prot": 26, "detail": "Komponen makanan yang terdeteksi di foto"}';
+
       const encodedKey = encodeURIComponent(apiKey);
-      const promptText = `Identifikasi makanan/minuman yang ada di dalam foto ini beserta perkiraan porsinya dalam Bahasa Indonesia. Hitung total kalori (kkal) dan protein (gram). Wajib balas HANYA format JSON murni seperti ini tanpa teks lain: {"name": "Nama Makanan di Foto", "cal": 420, "prot": 26, "detail": "Komponen makanan yang terlihat"}`;
-
-      // Payload standar untuk gemini-2.0-flash (tanpa thinking delay)
-      const fastPayload20 = JSON.stringify({
-        contents: [{
-          role: 'user',
-          parts: [
-            { text: promptText },
-            { inlineData: { mimeType: mimeType, data: base64Data } }
-          ]
-        }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 200 }
-      });
-
-      // Payload khusus gemini-2.5-flash dengan thinkingBudget: 0 agar tidak mikir lama
-      const fastPayload25 = JSON.stringify({
+      const geminiBody = JSON.stringify({
         contents: [{
           role: 'user',
           parts: [
@@ -1052,208 +854,65 @@
         }],
         generationConfig: {
           temperature: 0.1,
-          maxOutputTokens: 200,
-          thinkingConfig: { thinkingBudget: 0 }
+          responseMimeType: 'application/json'
         }
       });
 
-      const candidates = [
-        { url: `https://aiplatform.googleapis.com/v1beta1/publishers/google/models/gemini-2.0-flash:generateContent?key=${encodedKey}`, body: fastPayload20 },
-        { url: `https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-2.0-flash:generateContent?key=${encodedKey}`, body: fastPayload20 },
-        { url: `https://aiplatform.googleapis.com/v1beta1/publishers/google/models/gemini-2.5-flash:generateContent?key=${encodedKey}`, body: fastPayload25 },
-        { url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodedKey}`, body: fastPayload20 },
-        { url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodedKey}`, body: fastPayload25 }
+      // Jalur 1: Vertex AI & Generative Language dengan Key AQ.
+      const googleUrls = [
+        `https://aiplatform.googleapis.com/v1beta1/publishers/google/models/gemini-2.5-flash-lite:generateContent?key=${encodedKey}`,
+        `https://aiplatform.googleapis.com/v1beta1/publishers/google/models/gemini-2.5-flash:generateContent?key=${encodedKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodedKey}`
       ];
 
-      const racePromises = candidates.map(async (cand) => {
-        const res = await fetch(cand.url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: cand.body,
-          signal: signal
-        });
-        if (!res.ok) {
-          const errJson = await res.json().catch(() => ({}));
-          throw new Error(errJson?.error?.message || `HTTP ${res.status}`);
+      for (const url of googleUrls) {
+        try {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: geminiBody,
+            signal: signal
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const textPart = data?.candidates?.[0]?.content?.parts?.find(p => p.text)?.text || '';
+            return parseCleanJson(textPart);
+          }
+        } catch (e) {
+          if (signal?.aborted) throw e;
         }
-        const data = await res.json();
-        const textPart = data?.candidates?.[0]?.content?.parts?.find(p => p.text)?.text;
-        if (!textPart) throw new Error('Respons kosong');
-        return parseAIJsonResponse(textPart);
+      }
+
+      // Jalur 2: Backup Vision AI Otomatis Tanpa Key (Jika Key AQ. kena limit / CORS di HP)
+      const fallbackRes = await fetch('https://text.pollinations.ai/openai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'openai',
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'text', text: promptText },
+              { type: 'image_url', image_url: { url: `data:${mimeType};base64,${base64Data}` } }
+            ]
+          }],
+          jsonMode: true
+        }),
+        signal: signal
       });
 
-      return await Promise.any(racePromises);
-    }
-
-    // Smart Indonesian Nutrition Engine (Menghitung akurat 100+ makanan lokal secara instan)
-    function estimateIndonesianFood(text) {
-      const lower = (text || '').toLowerCase();
-      let cal = 0, prot = 0, matched = false;
-
-      // Karbohidrat
-      if (lower.includes('nasi')) {
-        if (lower.includes('1/2') || lower.includes('setengah') || lower.includes('sedikit')) { cal += 100; prot += 2; }
-        else if (lower.includes('goreng')) { cal += 380; prot += 9; }
-        else if (lower.includes('uduk') || lower.includes('kuning') || lower.includes('padang') || lower.includes('kebuli')) { cal += 280; prot += 5; }
-        else if (lower.includes('merah')) { cal += 150; prot += 4; }
-        else { cal += 180; prot += 4; }
-        matched = true;
-      }
-      if (lower.includes('lontong') || lower.includes('ketupat') || lower.includes('bubur')) { cal += 170; prot += 4; matched = true; }
-      if (lower.includes('kentang') || lower.includes('ubi') || lower.includes('singkong')) { cal += 140; prot += 3; matched = true; }
-      if (lower.includes('roti') || lower.includes('toast') || lower.includes('sandwich')) { cal += 210; prot += 7; matched = true; }
-      if (lower.includes('oat') || lower.includes('havermut') || lower.includes('granola')) { cal += 160; prot += 6; matched = true; }
-
-      // Mie & Street Food
-      if (lower.includes('mie') || lower.includes('bakmi') || lower.includes('indomie') || lower.includes('ramen') || lower.includes('kwetiau') || lower.includes('bihun') || lower.includes('pasta') || lower.includes('spaghetti')) {
-        cal += 360; prot += 12; matched = true;
-      }
-      if (lower.includes('seblak')) { cal += 340; prot += 14; matched = true; }
-      if (lower.includes('ceker')) { cal += 130; prot += 12; matched = true; }
-      if (lower.includes('dimsum') || lower.includes('siomay') || lower.includes('batagor') || lower.includes('pempek') || lower.includes('gyoza')) {
-        cal += 280; prot += 16; matched = true;
-      }
-      if (lower.includes('martabak') || lower.includes('terang bulan') || lower.includes('pizza') || lower.includes('burger') || lower.includes('kebab')) {
-        cal += 420; prot += 18; matched = true;
+      if (fallbackRes.ok) {
+        const fbData = await fallbackRes.json();
+        const fbText = fbData?.choices?.[0]?.message?.content || '';
+        return parseCleanJson(fbText);
       }
 
-      // Protein Hewani
-      if (lower.includes('ayam')) {
-        if (lower.includes('goreng') || lower.includes('geprek') || lower.includes('krispi') || lower.includes('crispy') || lower.includes('katsu')) { cal += 290; prot += 24; }
-        else { cal += 220; prot += 27; }
-        matched = true;
-      }
-      if (lower.includes('bebek')) { cal += 310; prot += 25; matched = true; }
-      if (lower.includes('ikan') || lower.includes('lele') || lower.includes('nila') || lower.includes('gurame') || lower.includes('tuna') || lower.includes('salmon') || lower.includes('tongkol') || lower.includes('patin') || lower.includes('bandeng') || lower.includes('kakap') || lower.includes('kembung')) {
-        if (lower.includes('goreng')) { cal += 240; prot += 26; }
-        else { cal += 190; prot += 28; }
-        matched = true;
-      }
-      if (lower.includes('udang') || lower.includes('cumi') || lower.includes('seafood') || lower.includes('kepiting')) {
-        cal += 210; prot += 26; matched = true;
-      }
-      if (lower.includes('sapi') || lower.includes('daging') || lower.includes('rendang') || lower.includes('empal') || lower.includes('steak') || lower.includes('sei') || lower.includes('iga') || lower.includes('kambing')) {
-        cal += 280; prot += 26; matched = true;
-      }
-      if (lower.includes('telur') || lower.includes('telor') || lower.includes('omelet')) {
-        const mult = (lower.includes('2') || lower.includes('dua')) ? 2 : ((lower.includes('3') || lower.includes('tiga')) ? 3 : 1);
-        const isFried = lower.includes('dadar') || lower.includes('ceplok') || lower.includes('goreng');
-        cal += (isFried ? 115 : 75) * mult;
-        prot += 6 * mult;
-        matched = true;
-      }
-
-      // Berkuah & Sate
-      if (lower.includes('bakso') || lower.includes('baso')) { cal += 310; prot += 20; matched = true; }
-      if (lower.includes('soto') || lower.includes('sup') || lower.includes('sop') || lower.includes('rawon') || lower.includes('gulai') || lower.includes('tongseng')) {
-        cal += 290; prot += 22; matched = true;
-      }
-      if (lower.includes('sate') || lower.includes('satay')) { cal += 330; prot += 28; matched = true; }
-
-      // Nabati & Sayur
-      if (lower.includes('tahu')) { cal += 90; prot += 7; matched = true; }
-      if (lower.includes('tempe')) { cal += 130; prot += 10; matched = true; }
-      if (lower.includes('edamame') || lower.includes('kacang')) { cal += 120; prot += 10; matched = true; }
-      if (lower.includes('sayur') || lower.includes('lalap') || lower.includes('capcay') || lower.includes('tumis') || lower.includes('kangkung') || lower.includes('bayam') || lower.includes('brokoli') || lower.includes('salad') || lower.includes('urap')) {
-        cal += 95; prot += 4; matched = true;
-      }
-      if (lower.includes('pecel') || lower.includes('gado') || lower.includes('ketoprak') || lower.includes('lotek')) {
-        cal += 320; prot += 14; matched = true;
-      }
-
-      // Gorengan, Buah & Minuman
-      if (lower.includes('gorengan') || lower.includes('bakwan') || lower.includes('mendoan') || lower.includes('risol') || lower.includes('perkedel') || lower.includes('kerupuk')) {
-        cal += 150; prot += 3; matched = true;
-      }
-      if (lower.includes('buah') || lower.includes('apel') || lower.includes('pisang') || lower.includes('pepaya') || lower.includes('melon') || lower.includes('semangka') || lower.includes('alpukat') || lower.includes('mangga') || lower.includes('jeruk')) {
-        cal += 110; prot += 1.5; matched = true;
-      }
-      if (lower.includes('whey') || lower.includes('protein shake')) { cal += 130; prot += 24; matched = true; }
-      if (lower.includes('kopi') || lower.includes('teh') || lower.includes('boba') || lower.includes('susu') || lower.includes('matcha') || lower.includes('jus') || lower.includes('coklat')) {
-        if (lower.includes('americano') || lower.includes('tawar') || lower.includes('tanpa gula')) { cal += 15; prot += 0; }
-        else { cal += 150; prot += 3; }
-        matched = true;
-      }
-
-      if (!matched) { cal = 320; prot = 16; }
-      return { cal: Math.round(cal), prot: Math.round(prot) };
-    }
-
-    function openAssistStateInModal() {
-      document.getElementById('ai-laser').classList.add('hidden');
-      document.getElementById('ai-loading-state').classList.add('hidden');
-      document.getElementById('ai-assist-state').classList.remove('hidden');
-
-      selectedPlateIndices.clear();
-      document.getElementById('ai-modal-food-input').value = '';
-      renderPlateChips();
-      recalcModalPreview();
-    }
-
-    function renderPlateChips() {
-      const container = document.getElementById('plate-chips');
-      container.innerHTML = plateQuickItems.map((item, idx) => {
-        const active = selectedPlateIndices.has(idx);
-        return `<button type="button" onclick="togglePlateChip(${idx})" class="btn-pop text-[11px] font-bold px-2.5 py-1.5 rounded-xl border transition ${active ? 'bg-rose-500 text-white border-rose-500 shadow-sm' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-rose-50'}">${item.label}</button>`;
-      }).join('');
-    }
-
-    function togglePlateChip(idx) {
-      if (selectedPlateIndices.has(idx)) {
-        selectedPlateIndices.delete(idx);
-      } else {
-        selectedPlateIndices.add(idx);
-      }
-      renderPlateChips();
-
-      const names = Array.from(selectedPlateIndices).map(i => plateQuickItems[i].name);
-      document.getElementById('ai-modal-food-input').value = names.join(' + ');
-      recalcModalPreview();
-    }
-
-    function recalcModalPreview() {
-      const textVal = document.getElementById('ai-modal-food-input').value.trim();
-      let totalCal = 0, totalProt = 0;
-
-      if (selectedPlateIndices.size > 0) {
-        selectedPlateIndices.forEach(i => {
-          totalCal += plateQuickItems[i].cal;
-          totalProt += plateQuickItems[i].prot;
-        });
-      } else if (textVal) {
-        const est = estimateIndonesianFood(textVal);
-        totalCal = est.cal;
-        totalProt = est.prot;
-      }
-
-      document.getElementById('ai-modal-live-macros').textContent = `${totalCal} kkal • ${totalProt}g Protein`;
-      return { name: textVal || 'Makanan Foto', cal: totalCal || 300, prot: totalProt || 18 };
-    }
-
-    function confirmModalFood() {
-      const res = recalcModalPreview();
-      if (!document.getElementById('ai-modal-food-input').value.trim() && selectedPlateIndices.size === 0) {
-        return alert('Pilih minimal 1 item di piringmu atau ketik nama makanannya terlebih dahulu!');
-      }
-
-      document.getElementById('ai-scan-modal').classList.add('hidden');
-      appState.loggedFoods.push({
-        name: `${res.name} 📸`,
-        cal: res.cal,
-        prot: res.prot,
-        tag: 'Photo Scan'
-      });
-
-      showAIDetectionBanner(res.name, res.cal, res.prot, 'Dihitung dari komposisi foto piring makanmu.');
-      renderNutrition();
-      saveState();
-      if (typeof confetti === 'function') confetti({ particleCount: 55, spread: 65 });
-      showToast(`✨ ${res.name}: +${res.cal} kkal | ${res.prot}g Protein`);
+      throw new Error('Gagal menghubungi server Vision AI. Periksa koneksi internetmu.');
     }
 
     function showAIDetectionBanner(name, cal, prot, detail) {
       const box = document.getElementById('ai-last-result');
-      document.getElementById('ai-res-title').textContent = `✅ Terdeteksi: ${name}`;
+      document.getElementById('ai-res-title').textContent = `✅ AI Mendeteksi: ${name}`;
       document.getElementById('ai-res-detail').textContent = detail || 'Dihitung otomatis berdasarkan visual porsi makanan.';
       document.getElementById('ai-res-macros').textContent = `${cal} kkal • ${prot}g Protein`;
       box.classList.remove('hidden');
@@ -1266,58 +925,75 @@
       try {
         const compressed = await compressImageToBase64(file);
         document.getElementById('ai-preview-img').src = compressed.fullDataUrl;
-        document.getElementById('ai-laser').classList.remove('hidden');
-        document.getElementById('ai-loading-state').classList.remove('hidden');
-        document.getElementById('ai-assist-state').classList.add('hidden');
         document.getElementById('ai-scan-modal').classList.remove('hidden');
+        document.getElementById('ai-scan-text').textContent = '⚡ AI sedang mengenali makanan di foto...';
 
-        // Timeout ketat 5.5 detik agar tidak pernah loading lama
         activeScanController = new AbortController();
-        const timeoutId = setTimeout(() => {
-          if (activeScanController) activeScanController.abort();
-        }, 5500);
-
         const apiKey = getActiveApiKey();
-        const foodData = await callGeminiVisionFast(apiKey, compressed.base64, compressed.mimeType, activeScanController.signal);
-        clearTimeout(timeoutId);
+        const foodData = await callGeminiVision(apiKey, compressed.base64, compressed.mimeType, activeScanController.signal);
 
         document.getElementById('ai-scan-modal').classList.add('hidden');
 
         const cleanName = (foodData.name || 'Makanan Hasil Scan').trim();
-        const calVal = Math.max(10, Math.round(Number(foodData.cal) || 280));
-        const protVal = Math.max(0, Math.round(Number(foodData.prot) || 15));
-        const detailVal = (foodData.detail || 'Terdeteksi langsung dari visual foto').trim();
+        const calVal = Math.max(5, Math.round(Number(foodData.cal) || 250));
+        const protVal = Math.max(0, Math.round(Number(foodData.prot) || 12));
+        const detailVal = (foodData.detail || 'Terdeteksi langsung dari foto').trim();
 
-        appState.loggedFoods.push({
-          name: `${cleanName} 📸`,
-          cal: calVal,
-          prot: protVal,
-          tag: 'AI Vision'
-        });
-
+        appState.loggedFoods.push({ name: `${cleanName} 📸`, cal: calVal, prot: protVal, tag: 'AI Vision' });
         showAIDetectionBanner(cleanName, calVal, protVal, detailVal);
         renderNutrition();
         saveState();
         if (typeof confetti === 'function') confetti({ particleCount: 55, spread: 65 });
         showToast(`✨ ${cleanName}: +${calVal} kkal | ${protVal}g Protein`);
       } catch (error) {
-        console.warn('Cloud Vision Fallback Triggered:', error);
-        // Jika API Key AQ... ditolak / timeout, langsung buka Smart Visual Plate Selector tanpa macet!
-        openAssistStateInModal();
+        if (error.name !== 'AbortError') {
+          document.getElementById('ai-scan-modal').classList.add('hidden');
+          alert('⚠️ Gagal memindai foto: ' + (error.message || 'Periksa koneksi internet.'));
+        }
       }
 
       event.target.value = '';
+    }
+
+    function estimateIndonesianFood(text) {
+      const lower = (text || '').toLowerCase();
+      let cal = 0, prot = 0, matched = false;
+      if (lower.includes('nasi')) {
+        if (lower.includes('1/2') || lower.includes('setengah')) { cal += 100; prot += 2; }
+        else if (lower.includes('goreng') || lower.includes('padang') || lower.includes('uduk')) { cal += 320; prot += 7; }
+        else { cal += 180; prot += 4; }
+        matched = true;
+      }
+      if (lower.includes('mie') || lower.includes('bakmi') || lower.includes('kwetiau') || lower.includes('seblak')) { cal += 360; prot += 12; matched = true; }
+      if (lower.includes('ayam')) {
+        if (lower.includes('goreng') || lower.includes('geprek') || lower.includes('krispi')) { cal += 290; prot += 24; }
+        else { cal += 220; prot += 27; }
+        matched = true;
+      }
+      if (lower.includes('ikan') || lower.includes('lele') || lower.includes('nila') || lower.includes('tuna') || lower.includes('salmon')) { cal += 210; prot += 28; matched = true; }
+      if (lower.includes('sapi') || lower.includes('daging') || lower.includes('rendang') || lower.includes('steak')) { cal += 280; prot += 26; matched = true; }
+      if (lower.includes('telur') || lower.includes('telor')) {
+        const mult = (lower.includes('2') || lower.includes('dua')) ? 2 : (lower.includes('3') ? 3 : 1);
+        cal += (lower.includes('dadar') || lower.includes('ceplok') ? 115 : 75) * mult;
+        prot += 6 * mult; matched = true;
+      }
+      if (lower.includes('bakso') || lower.includes('soto') || lower.includes('sup') || lower.includes('rawon')) { cal += 310; prot += 20; matched = true; }
+      if (lower.includes('sate')) { cal += 330; prot += 28; matched = true; }
+      if (lower.includes('tahu') || lower.includes('tempe')) { cal += 140; prot += 10; matched = true; }
+      if (lower.includes('sayur') || lower.includes('lalap') || lower.includes('pecel') || lower.includes('gado')) { cal += 140; prot += 6; matched = true; }
+      if (lower.includes('buah') || lower.includes('pisang') || lower.includes('apel') || lower.includes('oat')) { cal += 130; prot += 3; matched = true; }
+      if (!matched) { cal = 300; prot = 16; }
+      return { cal: Math.round(cal), prot: Math.round(prot) };
     }
 
     function addCustomFood() {
       const inp = document.getElementById('custom-food-name');
       const name = inp.value.trim();
       if (!name) return alert('Ketik nama makanan terlebih dahulu!');
-
       const est = estimateIndonesianFood(name);
       appState.loggedFoods.push({ name: `${name} ✨`, cal: est.cal, prot: est.prot, tag: 'Smart Calc' });
       inp.value = '';
-      showAIDetectionBanner(name, est.cal, est.prot, 'Dihitung instan dengan database nutrisi Indonesia');
+      showAIDetectionBanner(name, est.cal, est.prot, 'Dihitung dari database nutrisi Indonesia');
       renderNutrition();
       showToast(`✨ ${name}: +${est.cal} kkal & ${est.prot}g Protein!`);
       saveState();
@@ -1347,13 +1023,8 @@
       document.getElementById('prot-pct-num').textContent = protPct + '%';
       document.getElementById('cal-counter-text').textContent = `${tC} / 1450 kkal`;
       document.getElementById('prot-counter-text').textContent = `${tP} / 95 gram`;
-
-      document.getElementById('cal-status-desc').textContent = tC <= 1450
-        ? `Tersisa jatah ${calRem} kkal hari ini.`
-        : `Melebihi target harian ${tC - 1450} kkal.`;
-      document.getElementById('prot-status-desc').textContent = tP >= 95
-        ? '🎉 Target protein harian tercapai!'
-        : `Butuh ${95 - tP}g protein lagi hari ini.`;
+      document.getElementById('cal-status-desc').textContent = tC <= 1450 ? `Tersisa jatah ${calRem} kkal hari ini.` : `Melebihi target harian ${tC - 1450} kkal.`;
+      document.getElementById('prot-status-desc').textContent = tP >= 95 ? '🎉 Target protein harian tercapai!' : `Butuh ${95 - tP}g protein lagi hari ini.`;
 
       document.getElementById('logged-foods-box').innerHTML = (appState.loggedFoods || []).length === 0
         ? 'Belum ada makanan yang dicatat hari ini.'
@@ -1372,22 +1043,9 @@
       `).join('');
     }
 
-    function addPresetFood(i) {
-      const f = defaultFoods[i];
-      appState.loggedFoods.push(f);
-      renderNutrition();
-      showToast(`✨ +${f.cal} kkal & ${f.prot}g Protein tercatat!`);
-      saveState();
-    }
+    function addPresetFood(i) { const f = defaultFoods[i]; appState.loggedFoods.push(f); renderNutrition(); showToast(`✨ +${f.cal} kkal & ${f.prot}g Protein tercatat!`); saveState(); }
     function removeFood(i) { appState.loggedFoods.splice(i, 1); renderNutrition(); saveState(); }
-    function resetDailyNutrition() {
-      appState.loggedFoods = [];
-      appState.skinChecks = {};
-      document.getElementById('ai-last-result').classList.add('hidden');
-      renderNutrition();
-      showToast('🔄 Log makan hari ini di-reset');
-      saveState();
-    }
+    function resetDailyNutrition() { appState.loggedFoods = []; appState.skinChecks = {}; document.getElementById('ai-last-result').classList.add('hidden'); renderNutrition(); showToast('🔄 Log makan hari ini di-reset'); saveState(); }
     function toggleSkinHabit(id) { appState.skinChecks[id] = !appState.skinChecks[id]; renderNutrition(); saveState(); }
 
     // RECAP CARD
@@ -1405,13 +1063,10 @@
       document.getElementById('share-prot-text').textContent = tP;
       document.getElementById('share-gym-status').textContent = `🏋️‍♀️ ${done} / 40 Sesi Selesai`;
       document.getElementById('share-recovery-badge').textContent = `🔋 Otot ${avgRec}%`;
-
       document.getElementById('share-modal').classList.remove('hidden');
     }
 
-    function closeShareModal() {
-      document.getElementById('share-modal').classList.add('hidden');
-    }
+    function closeShareModal() { document.getElementById('share-modal').classList.add('hidden'); }
 
     async function downloadCard() {
       const btn = document.getElementById('btn-download-card');
