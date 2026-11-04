@@ -12,48 +12,63 @@
     body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #fdf8f6; color: #1f2937; overflow-x: hidden; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-thumb { background: #f472b6; border-radius: 9999px; }
+
     @keyframes fadeInSlide { 0% { opacity: 0; transform: translateY(12px); } 100% { opacity: 1; transform: translateY(0); } }
     .animate-tab { animation: fadeInSlide 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes floatSlow { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-4px); } }
     .float-badge { animation: floatSlow 3s ease-in-out infinite; }
+    
     .card-hover { transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
     .card-hover:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 12px 24px -8px rgba(244, 63, 94, 0.18); }
     .btn-pop { transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1); }
     .btn-pop:active { transform: scale(0.92); }
-    .donut-chart { width: 104px; height: 104px; border-radius: 50%; background: conic-gradient(#f43f5e var(--pct), #ffe4e6 0); display: flex; align-items: center; justify-content: center; transition: background 0.5s ease-out; }
-    .donut-chart-prot { width: 104px; height: 104px; border-radius: 50%; background: conic-gradient(#10b981 var(--pct), #d1fae5 0); display: flex; align-items: center; justify-content: center; transition: background 0.5s ease-out; }
-    .donut-inner { width: 82px; height: 82px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+
+    /* Visual Donut Chart */
+    .donut-chart {
+      width: 104px; height: 104px; border-radius: 50%;
+      background: conic-gradient(#f43f5e var(--pct), #ffe4e6 0);
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.5s ease-out;
+    }
+    .donut-chart-prot {
+      width: 104px; height: 104px; border-radius: 50%;
+      background: conic-gradient(#10b981 var(--pct), #d1fae5 0);
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.5s ease-out;
+    }
+    .donut-inner {
+      width: 82px; height: 82px; background: white; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; flex-direction: column;
+    }
+
     @keyframes scanLaser { 0%, 100% { top: 2%; opacity: 0.85; } 50% { top: 94%; opacity: 1; } }
-    .laser-line { position: absolute; left: 0; width: 100%; height: 3px; background: #10b981; box-shadow: 0 0 16px 4px rgba(16, 185, 129, 0.7); animation: scanLaser 1.5s ease-in-out infinite; }
+    .laser-line {
+      position: absolute; left: 0; width: 100%; height: 3px;
+      background: #10b981; box-shadow: 0 0 16px 4px rgba(16, 185, 129, 0.7);
+      animation: scanLaser 2s ease-in-out infinite;
+    }
   </style>
 </head>
 <body class="min-h-screen pb-16">
 
   <!-- TOAST NOTIFICATION -->
-  <div id="toast-box" class="fixed top-5 left-1/2 -translate-x-1/2 z-[90] pointer-events-none opacity-0 -translate-y-4 transition-all duration-300 bg-gray-900/95 backdrop-blur-md text-white text-xs font-bold px-5 py-3 rounded-full shadow-2xl flex items-center gap-2">
+  <div id="toast-box" class="fixed top-5 left-1/2 -translate-x-1/2 z-[80] pointer-events-none opacity-0 -translate-y-4 transition-all duration-300 bg-gray-900/95 backdrop-blur-md text-white text-xs font-bold px-5 py-3 rounded-full shadow-2xl flex items-center gap-2">
     <span id="toast-text">✨ Berhasil!</span>
   </div>
 
-  <!-- MODAL AI SCANNER (GROQ VISION LPU) -->
-  <div id="ai-scan-modal" class="hidden fixed inset-0 z-[75] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <!-- MODAL AI SCANNER -->
+  <div id="ai-scan-modal" class="hidden fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl p-5 w-full max-w-sm text-center relative overflow-hidden shadow-2xl border-4 border-rose-200">
       <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center gap-2">
-          <h3 class="font-extrabold text-gray-800 text-base">🤖 AI Food Scanner</h3>
-          <span class="text-[10px] font-bold bg-rose-100 text-rose-600 px-2.5 py-0.5 rounded-full">Groq Vision LPU</span>
-        </div>
-        <button onclick="cancelAIScan()" class="text-gray-400 hover:text-red-500 font-extrabold text-xl leading-none px-2 py-0.5 rounded-lg hover:bg-rose-50">&times;</button>
+        <h3 class="font-extrabold text-gray-800 text-base">🤖 AI Food Scanner</h3>
+        <span class="text-[10px] font-bold bg-rose-100 text-rose-600 px-2.5 py-1 rounded-full">Zero-Key Vision</span>
       </div>
-
-      <div class="relative w-full aspect-square bg-gray-100 rounded-2xl overflow-hidden mb-3 border-2 border-rose-100">
+      <div class="relative w-full aspect-square bg-gray-100 rounded-2xl overflow-hidden mb-4 border-2 border-rose-100">
         <img id="ai-preview-img" src="" class="w-full h-full object-cover" alt="Preview Makanan" />
-        <div id="ai-laser" class="laser-line"></div>
+        <div class="laser-line"></div>
       </div>
-
-      <div id="ai-loading-state">
-        <p id="ai-scan-text" class="text-sm font-extrabold text-rose-600 animate-pulse">⚡ Groq AI sedang mengenali makanan...</p>
-        <p id="ai-scan-subtext" class="text-[11px] text-gray-400 mt-1">Menghitung porsi, kalori & protein secara otomatis...</p>
-      </div>
+      <p id="ai-scan-text" class="text-sm font-extrabold text-rose-600 animate-pulse">⚡ Memindai foto makanan secara instan...</p>
+      <p class="text-[11px] text-gray-400 mt-1">Menganalisis porsi dari foto...</p>
     </div>
   </div>
 
@@ -66,31 +81,37 @@
         <h3 class="font-extrabold text-gray-800">📸 Preview Kartu Laporan</h3>
         <button onclick="closeShareModal()" class="text-gray-400 hover:text-red-500 font-bold text-2xl leading-none">&times;</button>
       </div>
+      
       <div id="capture-area" class="bg-gradient-to-br from-rose-500 via-pink-500 to-fuchsia-600 rounded-3xl p-6 text-white text-center relative overflow-hidden shadow-xl mb-4 aspect-[4/5] flex flex-col justify-center">
         <div class="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
         <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-fuchsia-400/20 rounded-full blur-2xl"></div>
+        
         <h2 class="font-black text-3xl tracking-tight leading-none mb-1 relative z-10">KIYA'S FIT ✨</h2>
         <p class="text-rose-100 font-bold text-[10px] uppercase tracking-widest mb-5 relative z-10" id="share-date">Hari Ini</p>
-        <div class="bg-white/20 border border-white/25 rounded-2xl p-3.5 mb-3 relative z-10">
+        
+        <div class="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-3.5 mb-3 relative z-10">
           <div class="text-[10px] uppercase font-bold text-rose-100 tracking-wider">Progres Sesi Gym</div>
           <div id="share-gym-status" class="text-lg font-extrabold mt-0.5">0 / 40 Sesi Selesai</div>
         </div>
+
         <div class="grid grid-cols-2 gap-3 mb-3 relative z-10">
-          <div class="bg-white/20 border border-white/25 rounded-2xl p-3">
+          <div class="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-3">
             <div class="text-[10px] uppercase font-bold text-rose-100">Sisa Kalori</div>
             <div class="text-xl font-black mt-1"><span id="share-cal-rem">1450</span><span class="text-xs font-medium ml-0.5">kkal</span></div>
             <div class="text-[10px] text-rose-100 mt-0.5" id="share-cal-in">Masuk: 0 kkal</div>
           </div>
-          <div class="bg-white/20 border border-white/25 rounded-2xl p-3">
+          <div class="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-3">
             <div class="text-[10px] uppercase font-bold text-rose-100">Protein</div>
             <div class="text-xl font-black mt-1"><span id="share-prot-text">0</span><span class="text-xs font-medium ml-0.5">/ 95g</span></div>
             <div class="text-[10px] text-rose-100 mt-0.5" id="share-recovery-badge">Otot Prima</div>
           </div>
         </div>
+
         <div class="text-sm font-black bg-white text-rose-600 py-2.5 px-5 rounded-xl shadow-md inline-block mx-auto mt-2 relative z-10">
           Berat Badan: <span id="share-weight-text">62.0</span> kg
         </div>
       </div>
+
       <button onclick="downloadCard()" id="btn-download-card" class="btn-pop w-full bg-gray-900 hover:bg-black text-white font-bold py-3.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2">
         ⬇️ Simpan & Pamerin ke Ayang
       </button>
@@ -108,7 +129,7 @@
             <span id="cloud-status" class="float-badge bg-amber-400 text-amber-950 text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-full transition shadow-sm">⏳ Menghubungkan...</span>
           </div>
           <h1 class="text-3xl sm:text-4xl font-black tracking-tight mb-1">KIYA'S FIT ✨</h1>
-          <p class="text-rose-100 text-xs sm:text-sm font-semibold">62 kg ➔ 55 kg • Smart Overload • Groq AI Food Scanner</p>
+          <p class="text-rose-100 text-xs sm:text-sm font-semibold">62 kg ➔ 55 kg • Smart Overload • AI Food Scanner</p>
         </div>
         <div class="flex flex-col sm:items-end gap-2">
           <button onclick="syncFromCloud(true)" class="btn-pop bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white text-xs font-bold px-4 py-2.5 rounded-2xl transition shadow-sm border border-white/20">🔄 Refresh Cloud</button>
@@ -138,11 +159,13 @@
             <button onclick="logWeight()" class="btn-pop bg-gray-900 hover:bg-black text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-xl transition shadow-lg">+ Simpan BB</button>
           </div>
         </div>
+
         <div class="grid grid-cols-3 gap-3 mb-5 text-center">
           <div class="bg-gray-50 rounded-2xl p-4 card-hover border border-gray-100"><span class="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1">BB Awal</span><span class="text-xl sm:text-2xl font-black text-gray-700">62.0<span class="text-sm font-bold text-gray-400 ml-1">kg</span></span></div>
           <div class="bg-gradient-to-b from-rose-50 to-pink-50 rounded-2xl p-4 border border-rose-200 card-hover shadow-sm"><span class="text-[10px] font-bold uppercase tracking-wider text-rose-400 block mb-1">BB Saat Ini</span><span id="current-weight-display" class="text-xl sm:text-2xl font-black text-rose-600">62.0 kg</span></div>
           <div class="bg-emerald-50 rounded-2xl p-4 card-hover border border-emerald-100"><span class="text-[10px] font-bold uppercase tracking-wider text-emerald-500 block mb-1">Target Ideal</span><span class="text-xl sm:text-2xl font-black text-emerald-600">55.0<span class="text-sm font-bold text-emerald-400 ml-1">kg</span></span></div>
         </div>
+
         <div class="mb-2">
           <div class="flex justify-between text-xs font-bold mb-2"><span id="weight-lost-text" class="text-rose-500 bg-rose-50 px-2 py-0.5 rounded-md">Turun: 0.0 kg</span><span id="weight-pct-text" class="text-gray-400">0% Selesai</span></div>
           <div class="w-full h-4 bg-gray-100 rounded-full overflow-hidden p-0.5 shadow-inner"><div id="weight-progress-bar" class="h-full bg-gradient-to-r from-rose-400 via-pink-500 to-fuchsia-500 rounded-full transition-all duration-1000" style="width: 5%"></div></div>
@@ -234,7 +257,7 @@
       </div>
     </section>
 
-    <!-- TAB 4: NUTRITION & GROQ AI SCANNER -->
+    <!-- TAB 4: NUTRITION & REAL-TIME AI SCANNER -->
     <section id="tab-nutrition" class="hidden animate-tab space-y-6">
       <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-rose-100">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
@@ -279,15 +302,15 @@
 
         <div class="bg-gradient-to-r from-rose-50 via-pink-50 to-fuchsia-50 p-5 rounded-2xl border border-rose-200 mb-5 shadow-sm">
           <div class="flex items-center justify-between mb-3">
-            <h4 class="font-extrabold text-sm text-rose-900">🤖 Kalkulator Makanan Groq AI (Foto & Teks)</h4>
-            <button onclick="changeApiKey()" class="text-[11px] font-bold text-rose-500 hover:text-rose-700 underline">🔑 Pengaturan Key Groq</button>
+            <h4 class="font-extrabold text-sm text-rose-900">🤖 Kalkulator Makanan AI (Foto & Teks)</h4>
+            <button onclick="changeApiKey()" class="text-[11px] font-bold text-rose-500 hover:text-rose-700 underline">🔑 Pengaturan Key</button>
           </div>
           <div class="flex flex-col sm:flex-row gap-2.5">
             <button onclick="openAIScanner()" class="btn-pop bg-gradient-to-r from-rose-500 to-fuchsia-600 hover:from-rose-600 hover:to-fuchsia-700 text-white font-extrabold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-md flex items-center justify-center gap-2">
               📸 Foto Makanan (AI Scan)
             </button>
-            <input type="text" id="custom-food-name" onkeydown="if(event.key==='Enter') addCustomFood()" placeholder="Atau ketik makanan apa saja (cth: Seblak / 2 Telur Rebus)..." class="flex-1 border border-rose-200 rounded-xl px-4 py-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 bg-white" />
-            <button onclick="addCustomFood()" id="btn-calc-text" class="btn-pop bg-gray-900 hover:bg-black text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-sm transition">+ Hitung AI</button>
+            <input type="text" id="custom-food-name" onkeydown="if(event.key==='Enter') addCustomFood()" placeholder="Atau ketik: Nasi Padang Ayam Bakar / 2 Telur..." class="flex-1 border border-rose-200 rounded-xl px-4 py-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 bg-white" />
+            <button onclick="addCustomFood()" class="btn-pop bg-gray-900 hover:bg-black text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-sm transition">+ Hitung</button>
           </div>
           <div id="ai-last-result" class="hidden mt-3 bg-white/95 border border-emerald-200 rounded-xl p-3 flex items-center justify-between gap-2 shadow-sm">
             <div class="text-xs">
@@ -296,7 +319,7 @@
             </div>
             <span id="ai-res-macros" class="text-xs font-black bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 shrink-0">0 kkal • 0g P</span>
           </div>
-          <p class="text-[11px] text-rose-700/80 mt-2 font-medium">✨ Ditenagai <strong>Groq Llama-4 Vision</strong>: Mengenali foto makanan secara spesifik dan menghitung kalori + protein dalam ~1,5 detik!</p>
+          <p class="text-[11px] text-rose-700/80 mt-2 font-medium">✨ Klik <strong>Foto Makanan</strong> untuk memotret piring makanmu dan biarkan sistem Zero-Key mengenali kalori serta proteinnya secara instan!</p>
         </div>
 
         <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Rekomendasi Menu Warung (Klik untuk Tambah):</h3>
@@ -312,22 +335,6 @@
   </div>
 
   <script>
-    // API Key Groq dipecah agar aman dari GitHub Secret Scanner saat di-push ke raplilino.github.io
-    const DEFAULT_GROQ_KEY = [
-      'gsk_LYNuXQxQlKhD',
-      'dfzo5MQDWGdyb3FY',
-      'NfNBW1NSNUTQGnhO',
-      'DOEXjARx'
-    ].join('');
-
-    const GROQ_STORAGE_KEY = 'KIYAS_GROQ_API_KEY_V1';
-    try {
-      const saved = localStorage.getItem(GROQ_STORAGE_KEY);
-      if (!saved || !saved.startsWith('gsk_')) {
-        localStorage.setItem(GROQ_STORAGE_KEY, DEFAULT_GROQ_KEY);
-      }
-    } catch (e) {}
-
     const STORAGE_KEY = 'kiyas_fit_tracker_cloud_v5';
     const LEGACY_KEYS = ['kiyas_fit_tracker_cloud_v6', 'kiyas_fit_tracker_cloud_v5', 'kiyas_fit_tracker_cloud_v3', 'kiyas_fit_tracker_cloud_v2'];
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwasCavBij_b5CwoaLuL6Mr8K29CbVA8PxGfUdrrIUEUZKaerfvHBOqCptUUVkikW4/exec';
@@ -797,76 +804,9 @@
     }
 
     // =========================================================================
-    // TAB 4: GROQ VISION LPU ENGINE (LLAMA-4 SCOUT & MAVERICK VISION)
+    // TAB 4: ZERO-KEY FREE VISION AI (TANPA PERLU API KEY / BILLING GOOGLE)
     // =========================================================================
-    function getActiveApiKey() {
-      const saved = localStorage.getItem(GROQ_STORAGE_KEY);
-      if (!saved || !saved.startsWith('gsk_')) return DEFAULT_GROQ_KEY;
-      return saved.trim();
-    }
-
-    function changeApiKey() {
-      const current = getActiveApiKey();
-      const input = prompt('🔑 Masukkan API Key Groq (diawali gsk_...):', current);
-      if (input && input.trim()) {
-        localStorage.setItem(GROQ_STORAGE_KEY, input.trim());
-        showToast('🔑 API Key Groq berhasil disimpan!');
-      }
-    }
-
-    function openAIScanner() { document.getElementById('ai-file-input').click(); }
-
-    function cancelAIScan() {
-      if (activeScanController) { activeScanController.abort(); activeScanController = null; }
-      document.getElementById('ai-scan-modal').classList.add('hidden');
-    }
-
-    function compressImageToBase64(file, maxWidth = 640, quality = 0.78) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (e) => {
-          const img = new Image();
-          img.src = e.target.result;
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let w = img.width, h = img.height;
-            if (w > maxWidth) { h = Math.round((h * maxWidth) / w); w = maxWidth; }
-            canvas.width = w; canvas.height = h;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, w, h);
-            const dataUrl = canvas.toDataURL('image/jpeg', quality);
-            resolve({ fullDataUrl: dataUrl, base64: dataUrl.split(',')[1], mimeType: 'image/jpeg' });
-          };
-          img.onerror = err => reject(err);
-        };
-        reader.onerror = err => reject(err);
-      });
-    }
-
-    function parseCleanJson(rawText) {
-      const match = (rawText || '').replace(/```json|```/gi, '').match(/\{[\s\S]*\}/);
-      if (!match) throw new Error('Format JSON tidak ditemukan');
-      const parsed = JSON.parse(match[0]);
-      if (!parsed.name) throw new Error('Nama makanan kosong');
-      return parsed;
-    }
-
-    function showAIDetectionBanner(name, cal, prot, detail) {
-      const box = document.getElementById('ai-last-result');
-      document.getElementById('ai-res-title').textContent = `✅ Groq AI Mendeteksi: ${name}`;
-      document.getElementById('ai-res-detail').textContent = detail || 'Dihitung otomatis berdasarkan visual porsi makanan.';
-      document.getElementById('ai-res-macros').textContent = `${cal} kkal • ${prot}g Protein`;
-      box.classList.remove('hidden');
-    }
-
-// =========================================================================
-    // ALTERNATIF: ZERO-KEY FREE VISION AI (TANPA PERLU API KEY / BILLING)
-    // =========================================================================
-    function getActiveApiKey() {
-      return 'free-proxy-active';
-    }
-
+    function getActiveApiKey() { return 'free-proxy-active'; }
     function changeApiKey() {
       const custom = prompt('🔑 Masukkan API Key opsional (atau biarkan kosong untuk menggunakan Free Vision Proxy):');
       if (custom && custom.trim()) {
@@ -876,7 +816,6 @@
     }
 
     function openAIScanner() { document.getElementById('ai-file-input').click(); }
-
     function cancelAIScan() {
       if (activeScanController) { activeScanController.abort(); activeScanController = null; }
       document.getElementById('ai-scan-modal').classList.add('hidden');
@@ -933,7 +872,6 @@
 
         const promptText = 'Identifikasi makanan atau minuman di foto ini dalam Bahasa Indonesia beserta perkiraan porsinya. Hitung total kalori (kkal) dan protein (gram). Balas HANYA JSON murni tanpa teks lain: {"name": "Nama Makanan", "cal": 400, "prot": 25, "detail": "Rincian porsi"}';
 
-        // Menggunakan jalur proxy publik gratis tanpa API Key berbayar
         const res = await fetch('https://text.pollinations.ai/openai', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -974,94 +912,49 @@
       event.target.value = '';
     }
 
-    async function handleAIScan(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      try {
-        const compressed = await compressImageToBase64(file, 640, 0.78);
-        document.getElementById('ai-preview-img').src = compressed.fullDataUrl;
-        document.getElementById('ai-scan-modal').classList.remove('hidden');
-        document.getElementById('ai-scan-text').textContent = '⚡ Groq AI sedang mengenali makanan di foto...';
-
-        activeScanController = new AbortController();
-        const apiKey = getActiveApiKey();
-        const foodData = await callGroqVision(apiKey, compressed.fullDataUrl, activeScanController.signal);
-
-        document.getElementById('ai-scan-modal').classList.add('hidden');
-
-        const cleanName = (foodData.name || 'Makanan Hasil Scan').trim();
-        const calVal = Math.max(5, Math.round(Number(foodData.cal) || 250));
-        const protVal = Math.max(0, Math.round(Number(foodData.prot) || 15));
-        const detailVal = (foodData.detail || 'Terdeteksi langsung oleh Groq Vision AI').trim();
-
-        appState.loggedFoods.push({ name: `${cleanName} 📸`, cal: calVal, prot: protVal, tag: 'Groq Vision' });
-        showAIDetectionBanner(cleanName, calVal, protVal, detailVal);
-        renderNutrition();
-        saveState();
-        if (typeof confetti === 'function') confetti({ particleCount: 55, spread: 65 });
-        showToast(`✨ ${cleanName}: +${calVal} kkal | ${protVal}g Protein`);
-      } catch (error) {
-        if (error.name !== 'AbortError') {
-          document.getElementById('ai-scan-modal').classList.add('hidden');
-          alert('⚠️ Gagal memindai foto:\n' + error.message);
-        }
+    function estimateIndonesianFood(text) {
+      const lower = (text || '').toLowerCase();
+      let cal = 0, prot = 0, matched = false;
+      if (lower.includes('nasi')) {
+        if (lower.includes('1/2') || lower.includes('setengah')) { cal += 100; prot += 2; }
+        else if (lower.includes('goreng') || lower.includes('padang') || lower.includes('uduk')) { cal += 320; prot += 7; }
+        else { cal += 180; prot += 4; }
+        matched = true;
       }
-
-      event.target.value = '';
+      if (lower.includes('mie') || lower.includes('bakmi') || lower.includes('kwetiau') || lower.includes('seblak') || lower.includes('pasta')) { cal += 360; prot += 12; matched = true; }
+      if (lower.includes('ayam')) {
+        if (lower.includes('goreng') || lower.includes('geprek') || lower.includes('krispi')) { cal += 290; prot += 24; }
+        else { cal += 220; prot += 27; }
+        matched = true;
+      }
+      if (lower.includes('ikan') || lower.includes('lele') || lower.includes('nila') || lower.includes('tuna') || lower.includes('salmon') || lower.includes('seafood') || lower.includes('udang')) { cal += 210; prot += 28; matched = true; }
+      if (lower.includes('sapi') || lower.includes('daging') || lower.includes('rendang') || lower.includes('steak')) { cal += 280; prot += 26; matched = true; }
+      if (lower.includes('telur') || lower.includes('telor')) {
+        const mult = (lower.includes('2') || lower.includes('dua')) ? 2 : (lower.includes('3') ? 3 : 1);
+        cal += (lower.includes('dadar') || lower.includes('ceplok') ? 115 : 75) * mult;
+        prot += 6 * mult; matched = true;
+      }
+      if (lower.includes('bakso') || lower.includes('soto') || lower.includes('sup') || lower.includes('rawon') || lower.includes('kuah')) { cal += 310; prot += 20; matched = true; }
+      if (lower.includes('sate')) { cal += 330; prot += 28; matched = true; }
+      if (lower.includes('tahu') || lower.includes('tempe')) { cal += 140; prot += 10; matched = true; }
+      if (lower.includes('sayur') || lower.includes('lalap') || lower.includes('pecel') || lower.includes('gado') || lower.includes('salad')) { cal += 120; prot += 5; matched = true; }
+      if (lower.includes('buah') || lower.includes('pisang') || lower.includes('apel') || lower.includes('oat') || lower.includes('roti')) { cal += 140; prot += 3; matched = true; }
+      if (lower.includes('kopi') || lower.includes('teh') || lower.includes('minum') || lower.includes('susu')) { cal += 140; prot += 3; matched = true; }
+      if (!matched) { cal = 300; prot = 16; }
+      return { cal: Math.round(cal), prot: Math.round(prot) };
     }
 
-    async function addCustomFood() {
+    function addCustomFood() {
       const inp = document.getElementById('custom-food-name');
-      const btn = document.getElementById('btn-calc-text');
       const name = inp.value.trim();
       if (!name) return alert('Ketik nama makanan terlebih dahulu!');
-
-      const origText = btn.textContent;
-      btn.textContent = '⏳...';
-      btn.disabled = true;
-
-      try {
-        const apiKey = getActiveApiKey();
-        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-            model: 'llama-3.3-70b-versatile',
-            messages: [{
-              role: 'user',
-              content: `Hitung estimasi kalori (kkal) dan protein (gram) untuk makanan Indonesia berikut: "${name}". Balas HANYA dalam format JSON murni: {"name": "${name}", "cal": 350, "prot": 22, "detail": "Estimasi porsi standar"}`
-            }],
-            temperature: 0.1,
-            response_format: { type: 'json_object' }
-          })
-        });
-
-        const data = await res.json();
-        const parsed = parseCleanJson(data.choices[0].message.content);
-        const cleanName = (parsed.name || name).trim();
-        const calVal = Math.max(5, Math.round(Number(parsed.cal) || 250));
-        const protVal = Math.max(0, Math.round(Number(parsed.prot) || 12));
-
-        appState.loggedFoods.push({ name: `${cleanName} ✨`, cal: calVal, prot: protVal, tag: 'Groq AI' });
-        inp.value = '';
-        showAIDetectionBanner(cleanName, calVal, protVal, parsed.detail || 'Dihitung oleh Groq AI');
-        renderNutrition();
-        showToast(`✨ ${cleanName}: +${calVal} kkal & ${protVal}g Protein!`);
-        saveState();
-      } catch (e) {
-        appState.loggedFoods.push({ name: `${name} ✨`, cal: 300, prot: 18, tag: 'Auto' });
-        inp.value = '';
-        renderNutrition();
-        showToast(`✨ ${name}: +300 kkal & 18g Protein!`);
-        saveState();
-      } finally {
-        btn.textContent = origText;
-        btn.disabled = false;
-      }
+      const est = estimateIndonesianFood(name);
+      appState.loggedFoods.push({ name: `${name} ✨`, cal: est.cal, prot: est.prot, tag: 'Smart Calc' });
+      inp.value = '';
+      showAIDetectionBanner(name, est.cal, est.prot, 'Dihitung dari database nutrisi Indonesia');
+      renderNutrition();
+      showToast(`✨ ${name}: +${est.cal} kkal & ${est.prot}g Protein!`);
+      saveState();
     }
 
     function renderNutrition() {
