@@ -860,19 +860,18 @@
       box.classList.remove('hidden');
     }
 
-    async function callGroqVision(apiKey, dataUrl, signal) {
+async function callGroqVision(apiKey, dataUrl, signal) {
       const promptText = `Kamu adalah ahli gizi Indonesia. Perhatikan foto makanan/minuman ini dengan teliti.
 Identifikasi secara spesifik semua makanan atau lauk yang ada di dalam foto beserta perkiraan porsinya dalam Bahasa Indonesia (contoh: "Mie Ayam Bakso", "Nasi Putih, Ayam Goreng & Lalapan", "2 Telur Rebus").
 Hitung estimasi total kalori (kkal) dan total protein (gram).
 Balas HANYA dalam format JSON murni dengan struktur persis berikut:
 {"name": "Nama Makanan Spesifik di Foto", "cal": 420, "prot": 26, "detail": "Rincian komponen makanan yang terlihat di foto"}`;
 
-      // Daftar model vision terbaru yang aktif di Groq
+      // Menggunakan model Vision yang aktif di akun Groq-mu
       const visionModels = [
-        'meta-llama/llama-4-scout-17b-16e-instruct',
-        'meta-llama/llama-4-maverick-17b-128e-instruct',
-        'llama-3.3-70b-versatile',
-        'llama-3.1-8b-instant'
+        'qwen-3.8-27b',
+        'qwen/qwen-3.8-27b',
+        'qwen-2-vl-7b-instruct'
       ];
 
       let lastErr = '';
@@ -911,7 +910,7 @@ Balas HANYA dalam format JSON murni dengan struktur persis berikut:
         }
       }
 
-      throw new Error(lastErr || 'Gagal memproses gambar di Groq API.');
+      throw new Error(lastErr || 'Gagal memproses gambar dengan model Qwen Vision.');
     }
 
     async function handleAIScan(event) {
