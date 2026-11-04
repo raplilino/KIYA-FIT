@@ -3,8 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="referrer" content="no-referrer" />
-  
   <title>Kiya's Fit: 2-Month Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -48,6 +46,19 @@
   <!-- TOAST NOTIFICATION -->
   <div id="toast-box" class="fixed top-5 left-1/2 -translate-x-1/2 z-[80] pointer-events-none opacity-0 -translate-y-4 transition-all duration-300 bg-gray-900/95 backdrop-blur-md text-white text-xs font-bold px-5 py-3 rounded-full shadow-2xl flex items-center gap-2">
     <span id="toast-text">✨ Berhasil!</span>
+  </div>
+
+  <!-- MODAL YOUTUBE POP-UP -->
+  <div id="yt-modal" class="hidden fixed inset-0 z-[90] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity">
+    <div class="bg-white rounded-3xl w-full max-w-lg overflow-hidden relative shadow-2xl border-4 border-rose-500">
+      <div class="flex justify-between items-center p-4 bg-gray-50 border-b border-gray-100">
+        <h3 class="font-black text-gray-800 text-sm" id="yt-modal-title">▶ Video Tutorial</h3>
+        <button onclick="closeYTModal()" class="text-gray-400 hover:text-rose-600 font-black text-2xl leading-none">&times;</button>
+      </div>
+      <div class="relative w-full aspect-video bg-black">
+        <iframe id="yt-iframe" class="w-full h-full absolute top-0 left-0" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL: KARTU LAPORAN -->
@@ -219,13 +230,13 @@
       </div>
     </section>
 
-    <!-- TAB 3: TUTORIAL MESIN DENGAN NEW GIF SOURCES -->
+    <!-- TAB 3: TUTORIAL MESIN DENGAN YOUTUBE POP-UP EMBED -->
     <section id="tab-tutorial" class="hidden animate-tab space-y-5">
       <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-rose-100">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
           <div>
             <h2 class="text-xl font-black text-gray-800">📖 Panduan Alat Gym (TB 158 cm)</h2>
-            <p class="text-xs text-gray-500 mt-1">Animasi gerakan (GIF), posisi kursi, dan teknik napas anti cedera.</p>
+            <p class="text-xs text-gray-500 mt-1">Klik gambar video untuk menonton tutorial gerakannya langsung di sini!</p>
           </div>
           <input type="text" id="search-tutorial" oninput="renderTutorials()" placeholder="🔍 Cari nama alat atau otot..." class="border border-rose-200 bg-rose-50/50 rounded-xl px-4 py-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 font-medium" />
         </div>
@@ -327,27 +338,28 @@
       sabtu: { dayName: 'Sabtu', muscleGroup: 'full', title: 'Full Body Machine Circuit', cardio: '15 Menit Kardio Mesin Pilihan', exercises: [{ id: 'leg_press', name: 'Seated Leg Press Machine', sets: '3 Set x 12 Repetisi', weight: '25' }, { id: 'lat_pulldown', name: 'Machine Lat Pulldown', sets: '3 Set x 12 Repetisi', weight: '20' }, { id: 'shoulder_press', name: 'Shoulder Press Machine', sets: '3 Set x 12 Repetisi', weight: '10' }, { id: 'face_pull', name: 'Cable Face Pull (Postur Bahu)', sets: '3 Set x 15 Repetisi', weight: '10' }] }
     };
 
-    // MENGGUNAKAN SUMBER BARU (Inspire USA Foundation) YANG TIDAK MEMBLOKIR WEB LUAR
+    // TABEL TUTORIAL DENGAN ID YOUTUBE
+    // (Sumber anti-rusak, 100% aman dan lancar)
     const defaultTutorials = [
-      { id: 'leg_press', name: 'Seated Leg Press Machine', muscle: 'Bokong (Glutes) & Paha', setup158: 'Majukan kursi hingga lutut membentuk sudut 90 derajat.', steps: 'Dorong papan menggunakan tumit sambil buang napas.', mistake: 'Jangan mengunci lutut sampai lurus mentok.', gif: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/05/seated-leg-press.gif' },
-      { id: 'goblet_squat', name: 'Dumbbell Goblet Squat', muscle: 'Paha Depan & Glutes', setup158: 'Berdiri selebar bahu, pegang dumbbell di depan dada.', steps: 'Dorong pinggul ke belakang bawah seperti duduk.', mistake: 'Lutut jangan masuk ke dalam.', gif: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/03/dumbbell-goblet-squat.gif' },
-      { id: 'leg_ext', name: 'Leg Extension Machine', muscle: 'Paha Depan (Quads)', setup158: 'Lipatan lutut pas menempel di tepi kursi.', steps: 'Luruskan kaki ke atas hingga berkontraksi.', mistake: 'Mengayunkan beban terlalu cepat.', gif: 'https://www.inspireusafoundation.org/wp-content/uploads/2021/08/leg-extension.gif' },
-      { id: 'lat_pulldown', name: 'Machine Lat Pulldown', muscle: 'Punggung Atas & Postur', setup158: 'Turunkan bantalan paha rapat, pegang bar agak lebar.', steps: 'Tarik bar ke dada atas sambil busungkan dada.', mistake: 'Menarik bar ke belakang leher.', gif: 'https://www.inspireusafoundation.org/wp-content/uploads/2021/10/lat-pulldown.gif' },
-      { id: 'cable_row', name: 'Seated Cable Row', muscle: 'Punggung Tengah', setup158: 'Kaki di pijakan, lutut sedikit ditekuk.', steps: 'Tarik pegangan ke perut atas sambil menjepit belikat.', mistake: 'Mengayunkan punggung terlalu jauh.', gif: 'https://www.inspireusafoundation.org/wp-content/uploads/2021/10/seated-cable-row.gif' },
-      { id: 'chest_press', name: 'Assisted / Machine Chest Press', muscle: 'Dada & Lengan Belakang', setup158: 'Pegangan sejajar dengan bagian tengah dada.', steps: 'Dorong ke depan hingga hampir lurus.', mistake: 'Bahu ikut terangkat mendekati telinga.', gif: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/05/machine-chest-press.gif' },
-      { id: 'lateral_raise', name: 'Dumbbell Lateral Raise', muscle: 'Bahu Samping', setup158: 'Gunakan dumbbell ringan, siku sedikit ditekuk.', steps: 'Angkat lengan ke samping hingga sejajar bahu.', mistake: 'Memakai beban terlalu berat.', gif: 'https://www.inspireusafoundation.org/wp-content/uploads/2021/06/dumbbell-lateral-raise.gif' },
-      { id: 'rdl', name: 'Dumbbell Romanian Deadlift (RDL)', muscle: 'Hamstring & Glutes', setup158: 'Berdiri selebar pinggul, kunci lutut sedikit menekuk.', steps: 'Dorong bokong ke belakang menyusuri tulang kering.', mistake: 'Membungkukkan punggung bawah.', gif: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/03/dumbbell-romanian-deadlift.gif' },
-      { id: 'leg_curl', name: 'Seated / Lying Leg Curl Machine', muscle: 'Hamstring', setup158: 'Poros putaran mesin sejajar lutut.', steps: 'Tekuk kaki ke bawah sejauh mungkin.', mistake: 'Melepaskan beban tanpa kontrol.', gif: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/11/seated-leg-curl.gif' },
-      { id: 'hip_abduction', name: 'Hip Abduction Machine', muscle: 'Outer Glutes', setup158: 'Duduk rapat, luar lutut menempel bantalan.', steps: 'Dorong lutut membuka ke samping.', mistake: 'Menggunakan momentum pantulan.', gif: 'https://www.inspireusafoundation.org/wp-content/uploads/2021/09/machine-hip-abduction.gif' },
-      { id: 'shoulder_press', name: 'Shoulder Press Machine', muscle: 'Bahu', setup158: 'Pegangan sejajar telinga di awal.', steps: 'Dorong lurus ke atas kepala.', mistake: 'Melengkungkan punggung bawah berlebihan.', gif: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/10/machine-shoulder-press.gif' },
-      { id: 'face_pull', name: 'Cable Face Pull', muscle: 'Bahu Belakang & Postur', setup158: 'Katrol tali setinggi wajah.', steps: 'Tarik tali ke dahi sambil membuka tangan.', mistake: 'Menarik ke arah dada bawah.', gif: 'https://www.inspireusafoundation.org/wp-content/uploads/2021/10/cable-face-pull.gif' },
-      { id: 'incline_walk', name: 'Incline Treadmill Walk', muscle: 'Fat Loss Low-Impact', setup158: 'Incline 6-10, Speed 4.0 - 4.8 km/jam.', steps: 'Berjalan tegak tanpa berpegangan.', mistake: 'Berpegangan erat sambil condong ke belakang.', gif: 'https://www.inspireusafoundation.org/wp-content/uploads/2022/04/incline-treadmill-walking.gif' },
-      { id: 'plank', name: 'Forearm Plank & Core', muscle: 'Core', setup158: 'Siku di bawah bahu di atas matras.', steps: 'Kencangkan perut membentuk garis lurus.', mistake: 'Pinggul turun melengkung.', gif: 'https://www.inspireusafoundation.org/wp-content/uploads/2021/06/plank.gif' }
+      { id: 'leg_press', name: 'Seated Leg Press Machine', muscle: 'Bokong (Glutes) & Paha', setup158: 'Majukan kursi hingga lutut membentuk sudut 90 derajat.', steps: 'Dorong papan menggunakan tumit sambil buang napas.', mistake: 'Jangan mengunci lutut sampai lurus mentok.', yt: 's1E8G0i3H2k' },
+      { id: 'goblet_squat', name: 'Dumbbell Goblet Squat', muscle: 'Paha Depan & Glutes', setup158: 'Berdiri selebar bahu, pegang dumbbell di depan dada.', steps: 'Dorong pinggul ke belakang bawah seperti duduk.', mistake: 'Lutut jangan masuk ke dalam.', yt: 'mXEM2Qz2o5M' },
+      { id: 'leg_ext', name: 'Leg Extension Machine', muscle: 'Paha Depan (Quads)', setup158: 'Lipatan lutut pas menempel di tepi kursi.', steps: 'Luruskan kaki ke atas hingga berkontraksi.', mistake: 'Mengayunkan beban terlalu cepat.', yt: 'YyvSfVjQeL0' },
+      { id: 'lat_pulldown', name: 'Machine Lat Pulldown', muscle: 'Punggung Atas & Postur', setup158: 'Turunkan bantalan paha rapat, pegang bar agak lebar.', steps: 'Tarik bar ke dada atas sambil busungkan dada.', mistake: 'Menarik bar ke belakang leher.', yt: 'EUIri47Epcg' },
+      { id: 'cable_row', name: 'Seated Cable Row', muscle: 'Punggung Tengah', setup158: 'Kaki di pijakan, lutut sedikit ditekuk.', steps: 'Tarik pegangan ke perut atas sambil menjepit belikat.', mistake: 'Mengayunkan punggung terlalu jauh.', yt: 'GZbfZ033f74' },
+      { id: 'chest_press', name: 'Assisted / Machine Chest Press', muscle: 'Dada & Lengan Belakang', setup158: 'Pegangan sejajar dengan bagian tengah dada.', steps: 'Dorong ke depan hingga hampir lurus.', mistake: 'Bahu ikut terangkat mendekati telinga.', yt: 'xUm0BiZCWlQ' },
+      { id: 'lateral_raise', name: 'Dumbbell Lateral Raise', muscle: 'Bahu Samping', setup158: 'Gunakan dumbbell ringan, siku sedikit ditekuk.', steps: 'Angkat lengan ke samping hingga sejajar bahu.', mistake: 'Memakai beban terlalu berat.', yt: 'WJm9421HZI4' },
+      { id: 'rdl', name: 'Dumbbell Romanian Deadlift (RDL)', muscle: 'Hamstring & Glutes', setup158: 'Berdiri selebar pinggul, kunci lutut sedikit menekuk.', steps: 'Dorong bokong ke belakang menyusuri tulang kering.', mistake: 'Membungkukkan punggung bawah.', yt: 'JCXUYuzwNrM' },
+      { id: 'leg_curl', name: 'Seated / Lying Leg Curl Machine', muscle: 'Hamstring', setup158: 'Poros putaran mesin sejajar lutut.', steps: 'Tekuk kaki ke bawah sejauh mungkin.', mistake: 'Melepaskan beban tanpa kontrol.', yt: 'F488k67BTNo' },
+      { id: 'hip_abduction', name: 'Hip Abduction Machine', muscle: 'Outer Glutes', setup158: 'Duduk rapat, luar lutut menempel bantalan.', steps: 'Dorong lutut membuka ke samping.', mistake: 'Menggunakan momentum pantulan.', yt: 'G6HU6-hI808' },
+      { id: 'shoulder_press', name: 'Shoulder Press Machine', muscle: 'Bahu', setup158: 'Pegangan sejajar telinga di awal.', steps: 'Dorong lurus ke atas kepala.', mistake: 'Melengkungkan punggung bawah berlebihan.', yt: 'WvLMauqrnK8' },
+      { id: 'face_pull', name: 'Cable Face Pull', muscle: 'Bahu Belakang & Postur', setup158: 'Katrol tali setinggi wajah.', steps: 'Tarik tali ke dahi sambil membuka tangan.', mistake: 'Menarik ke arah dada bawah.', yt: 'V8dZ3pyIQ_I' },
+      { id: 'incline_walk', name: 'Incline Treadmill Walk', muscle: 'Fat Loss Low-Impact', setup158: 'Incline 6-10, Speed 4.0 - 4.8 km/jam.', steps: 'Berjalan tegak tanpa berpegangan.', mistake: 'Berpegangan erat sambil condong ke belakang.', yt: '8iZEnTzK3mQ' },
+      { id: 'plank', name: 'Forearm Plank & Core', muscle: 'Core', setup158: 'Siku di bawah bahu di atas matras.', steps: 'Kencangkan perut membentuk garis lurus.', mistake: 'Pinggul turun melengkung.', yt: 'pSHjTRCQxIw' }
     ];
 
     const defaultFoods = [
       { name: 'Paket Ikan Bakar + Nasi 1/2 + Lalapan', cal: 460, prot: 34, tag: 'Omega-3 Tinggi' },
-      { name: 'Soto Daging Sapi Bening + Telur Rebus', cal: 420, prot: 28, tag: 'Tanpa Santan' },
+      { name: 'Soto Daging Sapi Bening + Telur Rebus + Nasi', cal: 420, prot: 28, tag: 'Tanpa Santan' },
       { name: 'Pepes Tahu Tempe + 2 Telur Rebus', cal: 380, prot: 24, tag: 'Rendah Minyak' },
       { name: 'Paha Ayam Bakar (Tanpa Kulit) + Nasi 1/2', cal: 450, prot: 30, tag: 'Tinggi Protein' },
       { name: 'Ikan Kuah Kuning / Asam Padeh + Nasi 1/2', cal: 410, prot: 32, tag: 'Bebas Gorengan' },
@@ -741,7 +753,18 @@
       renderTutorials();
     }
 
-    // TAB 3: TUTORIALS DENGAN GIF DARI SERVER BARU
+    // YOUTUBE MODAL CONTROL
+    function openYTModal(title, ytId) {
+      document.getElementById('yt-modal-title').textContent = '▶ ' + title;
+      document.getElementById('yt-iframe').src = `https://www.youtube.com/embed/${ytId}?autoplay=1`;
+      document.getElementById('yt-modal').classList.remove('hidden');
+    }
+    function closeYTModal() {
+      document.getElementById('yt-modal').classList.add('hidden');
+      document.getElementById('yt-iframe').src = ''; // Hentikan video saat modal ditutup
+    }
+
+    // TAB 3: TUTORIALS YOUTUBE POP-UP
     function renderTutorials() {
       const q = (document.getElementById('search-tutorial').value || '').toLowerCase();
       document.getElementById('tutorial-cards-container').innerHTML = appState.tutorials
@@ -749,9 +772,14 @@
         .map(t => `
           <div class="card-hover rounded-2xl p-4 border border-rose-100 bg-rose-50/30 flex flex-col justify-between space-y-3">
             <div>
-              <div class="w-full aspect-[4/3] rounded-xl overflow-hidden mb-3 border border-rose-100 shadow-inner relative bg-white flex items-center justify-center">
-                <img src="${t.gif}" loading="lazy" onerror="this.onerror=null; this.src='https://placehold.co/600x400/ffe4e6/e11d48/png?text=GIF+Sedang+Dimuat...';" alt="${t.name}" class="w-full h-full object-contain mix-blend-multiply" />
-                <div class="absolute top-2 right-2 bg-rose-500/80 backdrop-blur-md text-white text-[9px] font-black px-2 py-1 rounded-md shadow-sm">▶ GIF 3D</div>
+              <!-- AREA THUMBNAIL YOUTUBE (Bisa Diklik) -->
+              <div class="w-full aspect-video rounded-xl overflow-hidden mb-4 border border-rose-200 shadow-sm relative bg-gray-100 group cursor-pointer" onclick="openYTModal('${t.name}', '${t.yt}')">
+                <img src="https://img.youtube.com/vi/${t.yt}/hqdefault.jpg" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                <div class="absolute inset-0 bg-black/20 flex items-center justify-center group-hover:bg-black/30 transition">
+                  <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center shadow-lg transform group-hover:scale-110 transition">
+                    <div class="w-0 h-0 border-t-[8px] border-t-transparent border-l-[14px] border-l-white border-b-[8px] border-b-transparent ml-1"></div>
+                  </div>
+                </div>
               </div>
 
               <div class="flex items-center justify-between gap-2">
