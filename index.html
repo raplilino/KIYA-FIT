@@ -51,69 +51,82 @@
     <span id="toast-text">✨ Berhasil!</span>
   </div>
 
-  <!-- MODAL: KARTU LAPORAN -->
-  <div id="share-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white rounded-[2rem] p-5 w-full max-w-sm shadow-2xl">
-      <div class="flex justify-between items-center mb-3">
-        <h3 class="font-extrabold text-gray-800">📸 Preview Kartu Laporan</h3>
-        <button onclick="closeShareModal()" class="text-gray-400 hover:text-red-500 font-bold text-2xl leading-none">&times;</button>
+ <!-- MODAL: KARTU LAPORAN (STRAVA DARK STYLE) -->
+  <div id="share-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-gray-900 rounded-[2rem] p-5 w-full max-w-sm shadow-2xl border border-gray-800">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-black text-white text-sm">📸 Share Progress</h3>
+        <button onclick="closeShareModal()" class="text-gray-500 hover:text-rose-500 font-black text-2xl leading-none">&times;</button>
       </div>
       
-      <div id="capture-area" class="bg-gradient-to-br from-rose-500 via-pink-500 to-fuchsia-600 rounded-3xl p-6 text-white text-center relative overflow-hidden shadow-xl mb-4 aspect-[4/5] flex flex-col justify-center">
-        <div class="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-        <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-fuchsia-400/20 rounded-full blur-2xl"></div>
+      <!-- CARD AREA -->
+      <div id="capture-area" class="bg-[#0a0a0c] rounded-2xl text-white relative overflow-hidden shadow-2xl mb-4 aspect-[4/5] flex flex-col justify-between border border-gray-800/60">
+        <!-- Ambient Glow (Strava Style) -->
+        <div class="absolute -top-16 -right-16 w-48 h-48 bg-rose-600/20 rounded-full blur-[3rem]"></div>
+        <div class="absolute -bottom-16 -left-16 w-48 h-48 bg-fuchsia-600/20 rounded-full blur-[3rem]"></div>
         
-        <h2 class="font-black text-3xl tracking-tight leading-none mb-1 relative z-10">KIYA'S FIT ✨</h2>
-        <p class="text-rose-100 font-bold text-[10px] uppercase tracking-widest mb-5 relative z-10" id="share-date">Hari Ini</p>
-        
-        <div class="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-3.5 mb-3 relative z-10">
-          <div class="text-[10px] uppercase font-bold text-rose-100 tracking-wider">Progres Sesi Gym</div>
-          <div id="share-gym-status" class="text-lg font-extrabold mt-0.5">0 / 40 Sesi Selesai</div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3 mb-3 relative z-10">
-          <div class="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-3">
-            <div class="text-[10px] uppercase font-bold text-rose-100">Sisa Kalori</div>
-            <div class="text-xl font-black mt-1"><span id="share-cal-rem">1450</span><span class="text-xs font-medium ml-0.5">kkal</span></div>
-            <div class="text-[10px] text-rose-100 mt-0.5" id="share-cal-in">Masuk: 0 kkal</div>
+        <!-- Header -->
+        <div class="p-6 pb-0 relative z-10 flex justify-between items-start">
+          <div>
+            <h2 class="font-black text-2xl tracking-tighter text-gray-100">KIYA'S FIT</h2>
+            <p class="text-gray-500 font-bold text-[9px] uppercase tracking-widest mt-0.5" id="share-date">04 NOV 2026</p>
           </div>
-          <div class="bg-white/15 backdrop-blur-md border border-white/20 rounded-2xl p-3">
-            <div class="text-[10px] uppercase font-bold text-rose-100">Protein</div>
-            <div class="text-xl font-black mt-1"><span id="share-prot-text">0</span><span class="text-xs font-medium ml-0.5">/ 95g</span></div>
-            <div class="text-[10px] text-rose-100 mt-0.5" id="share-recovery-badge">Otot Prima</div>
+          <div class="bg-gray-800/80 backdrop-blur border border-gray-700 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-lg">
+             <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+             <span class="text-[8px] font-black uppercase text-gray-300 tracking-widest">Active</span>
           </div>
         </div>
 
-        <div class="text-sm font-black bg-white text-rose-600 py-2.5 px-5 rounded-xl shadow-md inline-block mx-auto mt-2 relative z-10">
-          Berat Badan: <span id="share-weight-text">62.0</span> kg
+        <!-- Main Metric & Graph -->
+        <div class="px-6 relative z-10 flex-1 flex flex-col justify-center">
+          <p class="text-[9px] uppercase font-bold text-gray-500 tracking-widest mb-1">Current Weight</p>
+          <div class="flex items-baseline gap-1">
+            <span class="text-7xl font-black tracking-tighter text-white drop-shadow-md" id="share-weight-text">62.0</span>
+            <span class="text-xl font-bold text-rose-500">kg</span>
+          </div>
+          <div class="text-[10px] font-bold text-emerald-400 mt-1 flex items-center gap-1">
+            <span id="share-weight-lost">▼ Turun 0.0 kg vs Awal</span>
+          </div>
+          
+          <!-- Dynamic SVG Weight Graph -->
+          <div class="w-full h-20 mt-5 relative">
+            <svg id="share-weight-graph" class="w-full h-full overflow-visible"></svg>
+          </div>
+        </div>
+
+        <!-- Secondary Stats Grid -->
+        <div class="px-6 pb-6 relative z-10 grid grid-cols-2 gap-y-5 gap-x-4 pt-2">
+          <div>
+            <div class="text-[9px] uppercase font-bold text-gray-500 tracking-widest">Gym Sessions</div>
+            <div class="text-xl font-black text-white mt-1" id="share-gym-status">0 <span class="text-xs font-medium text-gray-600">/ 40</span></div>
+          </div>
+          <div>
+            <div class="text-[9px] uppercase font-bold text-gray-500 tracking-widest">Remaining Cals</div>
+            <div class="text-xl font-black text-white mt-1"><span id="share-cal-rem">1450</span></div>
+          </div>
+          <div>
+            <div class="text-[9px] uppercase font-bold text-gray-500 tracking-widest">Protein Target</div>
+            <div class="text-xl font-black text-white mt-1"><span id="share-prot-text">0</span><span class="text-xs font-medium text-gray-600 ml-0.5">g</span></div>
+          </div>
+          <div>
+            <div class="text-[9px] uppercase font-bold text-gray-500 tracking-widest">Muscle Status</div>
+            <div class="text-sm font-black text-emerald-400 mt-2" id="share-recovery-badge">100% PRIMA</div>
+          </div>
+        </div>
+
+        <!-- Bottom Banner Ticker -->
+        <div class="w-full bg-gradient-to-r from-rose-600 to-fuchsia-600 py-1.5 text-center flex items-center justify-center overflow-hidden shadow-lg">
+          <p class="text-[8px] font-black text-white uppercase tracking-[0.3em] whitespace-nowrap">
+            TRANSFORMASI 8 MINGGU KIYA • KIYA'S FIT
+          </p>
         </div>
       </div>
 
-      <button onclick="downloadCard()" id="btn-download-card" class="btn-pop w-full bg-gray-900 hover:bg-black text-white font-bold py-3.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2">
-        ⬇️ Simpan & Pamerin ke Ayang
+      <button onclick="downloadCard()" id="btn-download-card" class="btn-pop w-full bg-rose-600 hover:bg-rose-700 text-white font-black py-4 rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+        ⬇️ Simpan & Share IG Story
       </button>
     </div>
   </div>
-
-  <div id="app-root" class="max-w-5xl mx-auto px-3 sm:px-6 pt-4">
-    <!-- HEADER -->
-    <header class="bg-gradient-to-r from-rose-500 via-pink-500 to-fuchsia-600 rounded-[2rem] p-6 sm:p-7 text-white shadow-xl mb-6 relative overflow-hidden">
-      <div class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 relative z-10">
-        <div>
-          <div class="flex items-center gap-2 mb-2 flex-wrap">
-            <span class="inline-block bg-white/20 backdrop-blur-md border border-white/20 text-[10px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full">Program 8 Minggu • TB 158 cm</span>
-            <span id="cloud-status" class="float-badge bg-amber-400 text-amber-950 text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-full transition shadow-sm">⏳ Menghubungkan...</span>
-          </div>
-          <h1 class="text-3xl sm:text-4xl font-black tracking-tight mb-1">KIYA'S FIT ✨</h1>
-          <p class="text-rose-100 text-xs sm:text-sm font-semibold">62 kg ➔ 55 kg • Smart Overload • Presisi Nutrisi</p>
-        </div>
-        <div class="flex flex-col sm:items-end gap-2">
-          <button onclick="syncFromCloud(true)" class="btn-pop bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white text-xs font-bold px-4 py-2.5 rounded-2xl transition shadow-sm border border-white/20">🔄 Refresh Cloud</button>
-          <button onclick="openShareModal()" class="btn-pop bg-white text-rose-600 hover:bg-rose-50 text-xs font-black px-4 py-2.5 rounded-2xl transition shadow-lg w-full sm:w-auto">📸 Buat Kartu Laporan</button>
-        </div>
-      </div>
-    </header>
 
     <!-- NAVIGATION TABS -->
     <nav class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6 bg-white p-2.5 rounded-[1.5rem] shadow-sm border border-rose-100">
@@ -927,6 +940,7 @@
       `).join('');
     }
 
+    // RECAP CARD YOUTUBE / STRAVA STYLE DENGAN GRAFIK
     function openShareModal() {
       const tC = (appState.loggedFoods || []).reduce((s, f) => s + f.cal, 0);
       const tP = (appState.loggedFoods || []).reduce((s, f) => s + f.prot, 0);
@@ -934,14 +948,87 @@
       const rec = getMuscleRecoveryData();
       const avgRec = Math.round(rec.reduce((s, r) => s + r.pct, 0) / rec.length);
 
-      document.getElementById('share-date').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
-      document.getElementById('share-weight-text').textContent = Number(appState.currentWeight || 62).toFixed(1);
+      const curW = Number(appState.currentWeight || 62.0);
+      const startW = Number(appState.weightHistory[0]?.weight || 62.0);
+      const lost = Math.max(0, startW - curW).toFixed(1);
+
+      // Tanggal format Uppercase
+      const dateOpts = { day: '2-digit', month: 'short', year: 'numeric' };
+      document.getElementById('share-date').textContent = new Date().toLocaleDateString('id-ID', dateOpts).toUpperCase();
+      
+      document.getElementById('share-weight-text').textContent = curW.toFixed(1);
+      
+      const badgeLost = document.getElementById('share-weight-lost');
+      if (lost > 0) {
+        badgeLost.textContent = `▼ Turun ${lost} kg vs Awal`;
+        badgeLost.className = 'text-[10px] font-bold text-emerald-400 mt-1';
+      } else {
+        badgeLost.textContent = `▶ Bertahan di ${curW.toFixed(1)} kg`;
+        badgeLost.className = 'text-[10px] font-bold text-gray-500 mt-1';
+      }
+
       document.getElementById('share-cal-rem').textContent = Math.max(0, 1450 - tC);
-      document.getElementById('share-cal-in').textContent = `Masuk: ${tC} kkal`;
       document.getElementById('share-prot-text').textContent = tP;
-      document.getElementById('share-gym-status').textContent = `🏋️‍♀️ ${done} / 40 Sesi Selesai`;
-      document.getElementById('share-recovery-badge').textContent = `🔋 Otot ${avgRec}%`;
+      document.getElementById('share-gym-status').innerHTML = `${done} <span class="text-xs font-medium text-gray-600">/ 40</span>`;
+      document.getElementById('share-recovery-badge').textContent = `${avgRec}% PRIMA`;
+
+      drawWeightGraphSVG();
       document.getElementById('share-modal').classList.remove('hidden');
+    }
+
+    function drawWeightGraphSVG() {
+      const history = appState.weightHistory || [];
+      const svg = document.getElementById('share-weight-graph');
+      
+      if (history.length < 2) {
+        svg.innerHTML = '<text x="50%" y="50%" fill="#4b5563" font-size="10" font-weight="bold" text-anchor="middle" dominant-baseline="middle">Belum ada cukup data grafik</text>';
+        return;
+      }
+
+      const w = 300; 
+      const h = 80;  
+      svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+      svg.setAttribute('preserveAspectRatio', 'none');
+
+      const weights = history.map(h => Number(h.weight));
+      // Tambah padding atas bawah agar grafik tidak mentok
+      const maxW = Math.max(...weights) + 1.5;
+      const minW = Math.min(...weights) - 1.5;
+      const range = maxW - minW || 1;
+
+      const stepX = w / (weights.length - 1);
+      
+      const pts = weights.map((wt, i) => {
+        const x = i * stepX;
+        const y = h - ((wt - minW) / range) * h;
+        return `${x},${y}`;
+      });
+
+      const pathDef = `M ${pts.join(' L ')}`;
+      const areaPath = `M 0,${h} L ${pts.join(' L ')} L ${w},${h} Z`;
+
+      const gradient = `
+        <defs>
+          <linearGradient id="roseGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.0"/>
+          </linearGradient>
+        </defs>
+      `;
+
+      svg.innerHTML = `
+        ${gradient}
+        <path d="${areaPath}" fill="url(#roseGrad)" />
+        <path d="${pathDef}" fill="none" stroke="#f43f5e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+        ${pts.map((pt, i) => {
+           // Gambar titik hanya di awal dan akhir untuk desain yang bersih
+           if(i === 0 || i === pts.length - 1) {
+              const [px, py] = pt.split(',');
+              return `<circle cx="${px}" cy="${py}" r="4.5" fill="#0a0a0c" stroke="#f43f5e" stroke-width="2.5"/>`;
+           }
+           return '';
+        }).join('')}
+      `;
     }
 
     function closeShareModal() { document.getElementById('share-modal').classList.add('hidden'); }
