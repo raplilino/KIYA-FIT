@@ -7,9 +7,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <!-- On-Device Vision AI Backup (TensorFlow.js) -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js" defer></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #fdf8f6; color: #1f2937; overflow-x: hidden; }
@@ -37,52 +34,25 @@
     <span id="toast-text">✨ Berhasil!</span>
   </div>
 
-  <!-- MODAL AI SCANNER (DENGAN VISUAL RESULT & KONFIRMASI ANTI-ERROR) -->
-  <div id="ai-scan-modal" class="hidden fixed inset-0 z-[75] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl p-5 w-full max-w-md text-center relative overflow-hidden shadow-2xl border-4 border-rose-200 my-auto">
+  <!-- MODAL AI SCANNER (MURNI AI VISION TANPA OPSI MANUAL) -->
+  <div id="ai-scan-modal" class="hidden fixed inset-0 z-[75] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-5 w-full max-w-sm text-center relative overflow-hidden shadow-2xl border-4 border-rose-200">
       <div class="flex items-center justify-between mb-3">
         <div class="flex items-center gap-2">
           <h3 class="font-extrabold text-gray-800 text-base">🤖 AI Food Scanner</h3>
-          <span id="ai-engine-badge" class="text-[10px] font-bold bg-rose-100 text-rose-600 px-2.5 py-0.5 rounded-full">Multi-Engine Vision</span>
+          <span class="text-[10px] font-bold bg-rose-100 text-rose-600 px-2.5 py-0.5 rounded-full">Real-Time Vision</span>
         </div>
         <button onclick="cancelAIScan()" class="text-gray-400 hover:text-red-500 font-extrabold text-xl leading-none px-2 py-0.5 rounded-lg hover:bg-rose-50">&times;</button>
       </div>
 
-      <div class="relative w-full h-52 bg-gray-100 rounded-2xl overflow-hidden mb-3 border-2 border-rose-100">
-        <img id="ai-preview-img" crossorigin="anonymous" src="" class="w-full h-full object-cover" alt="Preview Makanan" />
+      <div class="relative w-full aspect-square bg-gray-100 rounded-2xl overflow-hidden mb-3 border-2 border-rose-100">
+        <img id="ai-preview-img" src="" class="w-full h-full object-cover" alt="Preview Makanan" />
         <div id="ai-laser" class="laser-line"></div>
       </div>
 
-      <!-- State 1: Proses Scanning -->
       <div id="ai-loading-state">
-        <p id="ai-scan-text" class="text-sm font-extrabold text-rose-600 animate-pulse">⚡ AI sedang memindai isi piringmu...</p>
-        <p id="ai-scan-subtext" class="text-[11px] text-gray-400 mt-1">Mengenali makanan & menghitung kalori + protein...</p>
-      </div>
-
-      <!-- State 2: Hasil Deteksi / Konfirmasi Cepat (Jika Cloud perlu konfirmasi) -->
-      <div id="ai-result-state" class="hidden text-left space-y-3 pt-1">
-        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-xs text-emerald-900 flex items-center justify-between">
-          <div>
-            <span class="font-extrabold block" id="ai-detected-label">📸 Hasil Analisis Visual</span>
-            <span class="text-[10px] text-emerald-700" id="ai-detected-sub">Klik item di piring atau langsung simpan:</span>
-          </div>
-          <span id="ai-modal-live-macros" class="text-xs font-black bg-white text-emerald-700 px-2.5 py-1 rounded-lg border border-emerald-200 shrink-0">0 kkal • 0g P</span>
-        </div>
-
-        <div>
-          <label class="text-[10px] font-extrabold text-gray-500 uppercase tracking-wider block mb-1.5">Tap Komponen Makanan di Foto (Bisa pilih > 1):</label>
-          <div id="plate-chips" class="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto pr-1"></div>
-        </div>
-
-        <div>
-          <label class="text-[10px] font-extrabold text-gray-500 uppercase tracking-wider block mb-1">Nama Makanan Terdeteksi (Bisa Diedit):</label>
-          <input type="text" id="ai-modal-food-input" oninput="recalcModalPreview()" placeholder="Ketik / pilih makanan di atas..." class="w-full border border-rose-200 rounded-xl px-3.5 py-2 text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-rose-400 bg-rose-50/30" />
-        </div>
-
-        <div class="flex gap-2 pt-1">
-          <button onclick="cancelAIScan()" class="w-1/3 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-xs py-3 rounded-xl transition">Batal</button>
-          <button onclick="confirmModalFood()" class="w-2/3 btn-pop bg-gradient-to-r from-rose-500 to-fuchsia-600 text-white font-extrabold text-xs py-3 rounded-xl shadow-md">✅ Masukkan ke Kalori</button>
-        </div>
+        <p id="ai-scan-text" class="text-sm font-extrabold text-rose-600 animate-pulse">⚡ AI sedang mengenali makanan di foto...</p>
+        <p id="ai-scan-subtext" class="text-[11px] text-gray-400 mt-1">Menghitung porsi, kalori & protein secara otomatis...</p>
       </div>
     </div>
   </div>
@@ -430,7 +400,6 @@
 
     let isFirstPush = true;
     let activeScanController = null;
-    let mobileNetModel = null;
 
     function loadLocalBackup() {
       for (const k of LEGACY_KEYS) {
@@ -822,28 +791,8 @@
     }
 
     // =========================================================================
-    // TAB 4: MULTI-ENGINE AI VISION (VERTEX /v1/ + POLLINATIONS + TFJS MOBILENET)
+    // TAB 4: MURNI AI VISION SCANNER (TANPA OPSI MANUAL + PESAN ERROR ASLI)
     // =========================================================================
-    const plateQuickItems = [
-      { label: '🍚 Nasi 1/2 Porsi', name: 'Nasi 1/2 Porsi', cal: 100, prot: 2 },
-      { label: '🍚 Nasi 1 Porsi', name: 'Nasi Putih', cal: 180, prot: 4 },
-      { label: '🍗 Ayam Bakar/Panggang', name: 'Ayam Bakar', cal: 220, prot: 26 },
-      { label: '🍗 Ayam Goreng/Geprek', name: 'Ayam Goreng', cal: 290, prot: 24 },
-      { label: '🐟 Ikan Bakar/Kuah', name: 'Ikan Bakar/Kuah', cal: 190, prot: 28 },
-      { label: '🐟 Ikan Goreng', name: 'Ikan Goreng', cal: 250, prot: 26 },
-      { label: '🥚 Telur Rebus', name: 'Telur Rebus', cal: 75, prot: 6 },
-      { label: '🍳 Telur Dadar/Ceplok', name: 'Telur Dadar/Ceplok', cal: 120, prot: 6 },
-      { label: '🥩 Daging Sapi/Rendang', name: 'Olahan Daging Sapi', cal: 270, prot: 25 },
-      { label: '🍲 Bakso / Soto / Sup', name: 'Semangkuk Bakso/Soto', cal: 320, prot: 20 },
-      { label: '🍜 Mie / Bakmi / Seblak', name: 'Olahan Mie/Seblak', cal: 370, prot: 12 },
-      { label: '🍢 Sate Ayam/Sapi', name: 'Sate (1 Porsi)', cal: 330, prot: 28 },
-      { label: '🟫 Tahu & Tempe', name: 'Tahu & Tempe', cal: 140, prot: 10 },
-      { label: '🥗 Sayur / Lalapan', name: 'Sayur & Lalapan', cal: 80, prot: 4 },
-      { label: '🍌 Buah / Pisang / Apel', name: 'Buah Segar', cal: 100, prot: 2 },
-      { label: '🧋 Minuman Manis / Kopi', name: 'Minuman Manis', cal: 150, prot: 2 }
-    ];
-    let selectedPlateIndices = new Set();
-
     function getActiveApiKey() {
       const saved = localStorage.getItem('KIYAS_CUSTOM_GEMINI_KEY');
       if (!saved || saved === OLD_BROKEN_KEY) return DEFAULT_GEMINI_API_KEY;
@@ -866,7 +815,7 @@
       document.getElementById('ai-scan-modal').classList.add('hidden');
     }
 
-    function compressImageToBase64(file, maxWidth = 360, quality = 0.62) {
+    function compressImageToBase64(file, maxWidth = 480, quality = 0.7) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -891,197 +840,10 @@
 
     function parseCleanJson(rawText) {
       const match = (rawText || '').replace(/```json|```/gi, '').match(/\{[\s\S]*\}/);
-      if (!match) throw new Error('JSON tidak ditemukan');
+      if (!match) throw new Error('Respons AI bukan JSON valid: ' + rawText.slice(0, 100));
       const parsed = JSON.parse(match[0]);
-      if (!parsed.name) throw new Error('Nama kosong');
+      if (!parsed.name) throw new Error('Nama makanan kosong dari AI');
       return parsed;
-    }
-
-    // Pemanggilan paralel serentak ke Vertex AI /v1/ (khusus Key AQ.) + Backup OpenAI Vision
-    async function callCloudVisionParallel(apiKey, base64Data, mimeType, signal) {
-      const promptText = 'Identifikasi makanan atau minuman yang terlihat di foto ini dalam Bahasa Indonesia (contoh: "Mie Ayam Bakso", "Nasi Putih & Ikan Goreng", "Telur Dadar"). Hitung estimasi total kalori (kkal) dan protein (gram). Balas HANYA JSON murni tanpa teks lain: {"name": "Nama Makanan Spesifik", "cal": 420, "prot": 26, "detail": "Komponen yang terlihat di foto"}';
-      const encodedKey = encodeURIComponent(apiKey);
-
-      // Payload murni tanpa responseMimeType agar tidak terkena error 400 di Vertex /v1/
-      const vertexPayload = JSON.stringify({
-        contents: [{
-          role: 'user',
-          parts: [
-            { inlineData: { mimeType: mimeType, data: base64Data } },
-            { text: promptText }
-          ]
-        }]
-      });
-
-      const googleUrls = [
-        `https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-2.5-flash-lite:generateContent?key=${encodedKey}`,
-        `https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-2.5-flash:generateContent?key=${encodedKey}`,
-        `https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-2.0-flash:generateContent?key=${encodedKey}`,
-        `https://aiplatform.googleapis.com/v1beta1/publishers/google/models/gemini-2.5-flash-lite:generateContent?key=${encodedKey}`,
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodedKey}`
-      ];
-
-      const tasks = googleUrls.map(async (url) => {
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: vertexPayload,
-          signal: signal
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        const txt = data?.candidates?.[0]?.content?.parts?.find(p => p.text)?.text || '';
-        return parseCleanJson(txt);
-      });
-
-      // Jalur Cadangan OpenAI Vision (Tanpa parameter jsonMode yang menyebabkan error 400)
-      const openAIPayload = JSON.stringify({
-        model: 'openai',
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'text', text: promptText },
-            { type: 'image_url', image_url: { url: `data:${mimeType};base64,${base64Data}` } }
-          ]
-        }]
-      });
-
-      tasks.push((async () => {
-        const res = await fetch('https://text.pollinations.ai/openai', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          referrerPolicy: 'no-referrer',
-          body: openAIPayload,
-          signal: signal
-        });
-        if (!res.ok) throw new Error('Backup 1 gagal');
-        const data = await res.json();
-        const txt = data?.choices?.[0]?.message?.content || '';
-        return parseCleanJson(txt);
-      })());
-
-      tasks.push((async () => {
-        const res = await fetch('https://text.pollinations.ai/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          referrerPolicy: 'no-referrer',
-          body: openAIPayload,
-          signal: signal
-        });
-        if (!res.ok) throw new Error('Backup 2 gagal');
-        const txt = await res.text();
-        return parseCleanJson(txt);
-      })());
-
-      return await Promise.any(tasks);
-    }
-
-    // Klasifikasi Visual On-Device (TensorFlow.js MobileNet) jika seluruh Cloud diblokir jaringan
-    const visualClassMap = [
-      { keys: ['noodle', 'spaghetti', 'carbonara', 'ramen', 'pasta'], name: 'Olahan Mie / Bakmi', idx: 10 },
-      { keys: ['soup', 'consomme', 'hot pot', 'Stew', 'bowl'], name: 'Hidangan Berkuah (Soto/Bakso/Sup)', idx: 9 },
-      { keys: ['meat', 'steak', 'beef', 'pork', 'ribs', 'roast', 'burrito'], name: 'Olahan Daging / Rendang', idx: 8 },
-      { keys: ['chicken', 'hen', 'drumstick', 'wing', 'fried'], name: 'Hidangan Ayam + Nasi', idx: 2 },
-      { keys: ['fish', 'salmon', 'tuna', 'seafood', 'lobster', 'crab', 'shrimp'], name: 'Hidangan Ikan / Seafood', idx: 4 },
-      { keys: ['egg', 'omelet', 'custard'], name: 'Hidangan Telur', idx: 7 },
-      { keys: ['banana', 'apple', 'orange', 'lemon', 'pineapple', 'strawberry', 'fig', 'pomegranate', 'fruit'], name: 'Buah Segar', idx: 14 },
-      { keys: ['broccoli', 'cauliflower', 'cabbage', 'cucumber', 'zucchini', 'salad', 'guacamole', 'vegetable', 'corn'], name: 'Sayur & Lalapan Segar', idx: 13 },
-      { keys: ['coffee', 'espresso', 'cup', 'mug', 'tea', 'wine', 'bottle', 'drink', 'smoothie'], name: 'Minuman / Kopi / Teh', idx: 15 },
-      { keys: ['pizza', 'cheeseburger', 'hotdog', 'sandwich', 'bagel', 'pretzel', 'bakery', 'bread', 'toast', 'waffle', 'pancake', 'ice cream', 'cake', 'chocolate', 'dough'], name: 'Roti / Camilan / Fast Food', idx: null }
-    ];
-
-    async function runOnDeviceVision(imgElement) {
-      try {
-        if (typeof mobilenet !== 'undefined') {
-          if (!mobileNetModel) {
-            mobileNetModel = await mobilenet.load({ version: 2, alpha: 0.5 });
-          }
-          const predictions = await mobileNetModel.classify(imgElement);
-          if (predictions && predictions.length > 0) {
-            const joined = predictions.map(p => p.className.toLowerCase()).join(' ');
-            for (const rule of visualClassMap) {
-              if (rule.keys.some(k => joined.includes(k))) {
-                return { detectedName: rule.name, chipIndex: rule.idx, rawClass: predictions[0].className };
-              }
-            }
-          }
-        }
-      } catch (e) {}
-      return null;
-    }
-
-    async function openVisualConfirmModal(imgElement) {
-      document.getElementById('ai-scan-text').textContent = '🔍 Menganalisis objek visual di perangkat...';
-      const localVision = await runOnDeviceVision(imgElement);
-
-      document.getElementById('ai-laser').classList.add('hidden');
-      document.getElementById('ai-loading-state').classList.add('hidden');
-      document.getElementById('ai-result-state').classList.remove('hidden');
-
-      selectedPlateIndices.clear();
-      if (localVision) {
-        if (localVision.chipIndex !== null) selectedPlateIndices.add(localVision.chipIndex);
-        document.getElementById('ai-modal-food-input').value = localVision.detectedName;
-        document.getElementById('ai-detected-label').textContent = `📸 Terdeteksi Visual: ${localVision.detectedName}`;
-        document.getElementById('ai-detected-sub').textContent = 'Sesuaikan komponen piring di bawah lalu klik Masukkan:';
-      } else {
-        document.getElementById('ai-modal-food-input').value = '';
-        document.getElementById('ai-detected-label').textContent = '📸 Foto Berhasil Dipindai!';
-        document.getElementById('ai-detected-sub').textContent = 'Tap lauk/makanan yang ada di foto piringmu:';
-      }
-
-      renderPlateChips();
-      recalcModalPreview();
-    }
-
-    function renderPlateChips() {
-      const container = document.getElementById('plate-chips');
-      container.innerHTML = plateQuickItems.map((item, idx) => {
-        const active = selectedPlateIndices.has(idx);
-        return `<button type="button" onclick="togglePlateChip(${idx})" class="btn-pop text-[11px] font-bold px-2.5 py-1.5 rounded-xl border transition ${active ? 'bg-rose-500 text-white border-rose-500 shadow-sm' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-rose-50'}">${item.label}</button>`;
-      }).join('');
-    }
-
-    function togglePlateChip(idx) {
-      if (selectedPlateIndices.has(idx)) selectedPlateIndices.delete(idx);
-      else selectedPlateIndices.add(idx);
-      renderPlateChips();
-      const names = Array.from(selectedPlateIndices).map(i => plateQuickItems[i].name);
-      document.getElementById('ai-modal-food-input').value = names.join(' + ');
-      recalcModalPreview();
-    }
-
-    function recalcModalPreview() {
-      const textVal = document.getElementById('ai-modal-food-input').value.trim();
-      let totalCal = 0, totalProt = 0;
-
-      if (selectedPlateIndices.size > 0) {
-        selectedPlateIndices.forEach(i => {
-          totalCal += plateQuickItems[i].cal;
-          totalProt += plateQuickItems[i].prot;
-        });
-      } else if (textVal) {
-        const est = estimateIndonesianFood(textVal);
-        totalCal = est.cal;
-        totalProt = est.prot;
-      }
-
-      document.getElementById('ai-modal-live-macros').textContent = `${totalCal} kkal • ${totalProt}g P`;
-      return { name: textVal || 'Makanan Hasil Scan', cal: totalCal || 320, prot: totalProt || 18 };
-    }
-
-    function confirmModalFood() {
-      const res = recalcModalPreview();
-      if (!document.getElementById('ai-modal-food-input').value.trim() && selectedPlateIndices.size === 0) {
-        return alert('Tap minimal 1 item makanan di atas atau ketik namanya terlebih dahulu!');
-      }
-      document.getElementById('ai-scan-modal').classList.add('hidden');
-      appState.loggedFoods.push({ name: `${res.name} 📸`, cal: res.cal, prot: res.prot, tag: 'AI Scan' });
-      showAIDetectionBanner(res.name, res.cal, res.prot, 'Terdeteksi & dihitung dari foto makananmu.');
-      renderNutrition();
-      saveState();
-      if (typeof confetti === 'function') confetti({ particleCount: 55, spread: 65 });
-      showToast(`✨ ${res.name}: +${res.cal} kkal | ${res.prot}g Protein`);
     }
 
     function showAIDetectionBanner(name, cal, prot, detail) {
@@ -1097,42 +859,70 @@
       if (!file) return;
 
       try {
-        const compressed = await compressImageToBase64(file);
-        const imgEl = document.getElementById('ai-preview-img');
-        imgEl.src = compressed.fullDataUrl;
-
-        document.getElementById('ai-laser').classList.remove('hidden');
-        document.getElementById('ai-loading-state').classList.remove('hidden');
-        document.getElementById('ai-result-state').classList.add('hidden');
+        const compressed = await compressImageToBase64(file, 480, 0.7);
+        document.getElementById('ai-preview-img').src = compressed.fullDataUrl;
         document.getElementById('ai-scan-modal').classList.remove('hidden');
-        document.getElementById('ai-scan-text').textContent = '⚡ AI sedang mengenali makanan di foto...';
-
-        activeScanController = new AbortController();
-        const timeoutId = setTimeout(() => {
-          if (activeScanController) activeScanController.abort();
-        }, 6500);
+        document.getElementById('ai-scan-text').textContent = '⚡ Menghubungi Gemini Vision AI...';
 
         const apiKey = getActiveApiKey();
-        const foodData = await callCloudVisionParallel(apiKey, compressed.base64, compressed.mimeType, activeScanController.signal);
-        clearTimeout(timeoutId);
+        const promptText = 'Identifikasi makanan atau minuman di foto ini dalam Bahasa Indonesia beserta perkiraan porsinya. Hitung total kalori (kkal) dan protein (gram). Balas HANYA JSON murni: {"name": "Nama Makanan", "cal": 400, "prot": 25, "detail": "Rincian porsi"}';
+
+        const models = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-2.0-flash'];
+        let foodData = null;
+        let lastServerError = '';
+
+        for (const model of models) {
+          const url = `https://aiplatform.googleapis.com/v1/publishers/google/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+          try {
+            const res = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{
+                  role: 'user',
+                  parts: [
+                    { inlineData: { mimeType: compressed.mimeType, data: compressed.base64 } },
+                    { text: promptText }
+                  ]
+                }]
+              })
+            });
+
+            const data = await res.json();
+            if (!res.ok || data.error) {
+              const errMsg = data?.error?.message || `Status HTTP ${res.status}`;
+              const errStatus = data?.error?.status || res.status;
+              lastServerError = `[${model} - ${errStatus}] ${errMsg}`;
+              continue;
+            }
+
+            const rawText = data?.candidates?.[0]?.content?.parts?.find(p => p.text)?.text || '';
+            foodData = parseCleanJson(rawText);
+            if (foodData) break;
+          } catch (fetchErr) {
+            lastServerError = fetchErr.message;
+          }
+        }
+
+        if (!foodData) {
+          throw new Error(lastServerError || 'Koneksi ke server Google ditolak.');
+        }
 
         document.getElementById('ai-scan-modal').classList.add('hidden');
 
         const cleanName = (foodData.name || 'Makanan Hasil Scan').trim();
-        const calVal = Math.max(5, Math.round(Number(foodData.cal) || 260));
+        const calVal = Math.max(5, Math.round(Number(foodData.cal) || 250));
         const protVal = Math.max(0, Math.round(Number(foodData.prot) || 15));
-        const detailVal = (foodData.detail || 'Terdeteksi langsung dari foto').trim();
 
         appState.loggedFoods.push({ name: `${cleanName} 📸`, cal: calVal, prot: protVal, tag: 'AI Vision' });
-        showAIDetectionBanner(cleanName, calVal, protVal, detailVal);
+        showAIDetectionBanner(cleanName, calVal, protVal, foodData.detail || 'Terdeteksi langsung oleh Gemini AI');
         renderNutrition();
         saveState();
         if (typeof confetti === 'function') confetti({ particleCount: 55, spread: 65 });
         showToast(`✨ ${cleanName}: +${calVal} kkal | ${protVal}g Protein`);
       } catch (error) {
-        // Jika Cloud API diblokir/timeout, JANGAN tampilkan alert error! Langsung jalankan On-Device Vision di modal
-        const imgEl = document.getElementById('ai-preview-img');
-        await openVisualConfirmModal(imgEl);
+        document.getElementById('ai-scan-modal').classList.add('hidden');
+        alert('🔍 Pesan Asli Server Google:\n\n' + error.message);
       }
 
       event.target.value = '';
