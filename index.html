@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- TRIK SAKTI ANTI-BLOKIR GAMBAR (NO-REFERRER) -->
+  <meta name="referrer" content="no-referrer" />
+  
   <title>Kiya's Fit: 2-Month Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -23,7 +26,6 @@
     .btn-pop { transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1); }
     .btn-pop:active { transform: scale(0.92); }
 
-    /* Visual Donut Chart */
     .donut-chart {
       width: 104px; height: 104px; border-radius: 50%;
       background: conic-gradient(#f43f5e var(--pct), #ffe4e6 0);
@@ -161,7 +163,7 @@
       </div>
     </section>
 
-    <!-- TAB 2: GYM, OVERLOAD & RECOVERY -->
+    <!-- TAB 2: GYM & OVERLOAD -->
     <section id="tab-gym" class="hidden animate-tab space-y-6">
       <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-rose-100">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
@@ -218,13 +220,13 @@
       </div>
     </section>
 
-    <!-- TAB 3: TUTORIAL MESIN -->
+    <!-- TAB 3: TUTORIAL MESIN & GIF -->
     <section id="tab-tutorial" class="hidden animate-tab space-y-5">
       <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-rose-100">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
           <div>
             <h2 class="text-xl font-black text-gray-800">📖 Panduan Alat Gym (TB 158 cm)</h2>
-            <p class="text-xs text-gray-500 mt-1">Pengaturan posisi kursi dan teknik napas yang benar agar bebas cedera.</p>
+            <p class="text-xs text-gray-500 mt-1">Animasi 3D (GIF), posisi kursi, dan teknik napas anti cedera.</p>
           </div>
           <input type="text" id="search-tutorial" oninput="renderTutorials()" placeholder="🔍 Cari nama alat atau otot..." class="border border-rose-200 bg-rose-50/50 rounded-xl px-4 py-3 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 font-medium" />
         </div>
@@ -326,22 +328,22 @@
       sabtu: { dayName: 'Sabtu', muscleGroup: 'full', title: 'Full Body Machine Circuit', cardio: '15 Menit Kardio Mesin Pilihan', exercises: [{ id: 'leg_press', name: 'Seated Leg Press Machine', sets: '3 Set x 12 Repetisi', weight: '25' }, { id: 'lat_pulldown', name: 'Machine Lat Pulldown', sets: '3 Set x 12 Repetisi', weight: '20' }, { id: 'shoulder_press', name: 'Shoulder Press Machine', sets: '3 Set x 12 Repetisi', weight: '10' }, { id: 'face_pull', name: 'Cable Face Pull (Postur Bahu)', sets: '3 Set x 15 Repetisi', weight: '10' }] }
     };
 
-    // TABEL TUTORIAL DENGAN DATA GIF ANIMASI (PROXIED VIA WSRV.NL)
+    // TABEL TUTORIAL DENGAN LINK LANGSUNG KE SUMBER ASLI
     const defaultTutorials = [
-      { id: 'leg_press', name: 'Seated Leg Press Machine', muscle: 'Bokong (Glutes) & Paha', setup158: 'Majukan kursi hingga lutut membentuk sudut 90 derajat.', steps: 'Dorong papan menggunakan tumit sambil buang napas.', mistake: 'Jangan mengunci lutut sampai lurus mentok.', gif: 'https://wsrv.nl/?url=fitnessprogramer.com/wp-content/uploads/2015/11/Leg-Press.gif&n=-1' },
-      { id: 'goblet_squat', name: 'Dumbbell Goblet Squat', muscle: 'Paha Depan & Glutes', setup158: 'Berdiri selebar bahu, pegang dumbbell di depan dada.', steps: 'Dorong pinggul ke belakang bawah seperti duduk.', mistake: 'Lutut jangan masuk ke dalam.', gif: 'https://wsrv.nl/?url=fitnessprogramer.com/wp-content/uploads/2015/11/Goblet-Squat.gif&n=-1' },
-      { id: 'leg_ext', name: 'Leg Extension Machine', muscle: 'Paha Depan (Quads)', setup158: 'Lipatan lutut pas menempel di tepi kursi.', steps: 'Luruskan kaki ke atas hingga berkontraksi.', mistake: 'Mengayunkan beban terlalu cepat.', gif: 'https://wsrv.nl/?url=fitnessprogramer.com/wp-content/uploads/2015/11/Leg-Extension.gif&n=-1' },
-      { id: 'lat_pulldown', name: 'Machine Lat Pulldown', muscle: 'Punggung Atas & Postur', setup158: 'Turunkan bantalan paha rapat, pegang bar agak lebar.', steps: 'Tarik bar ke dada atas sambil busungkan dada.', mistake: 'Menarik bar ke belakang leher.', gif: 'https://wsrv.nl/?url=fitnessprogramer.com/wp-content/uploads/2021/02/Lat-Pulldown.gif&n=-1' },
-      { id: 'cable_row', name: 'Seated Cable Row', muscle: 'Punggung Tengah', setup158: 'Kaki di pijakan, lutut sedikit ditekuk.', steps: 'Tarik pegangan ke perut atas sambil menjepit belikat.', mistake: 'Mengayunkan punggung terlalu jauh.', gif: 'https://wsrv.nl/?url=fitnessprogramer.com/wp-content/uploads/2021/02/Seated-Cable-Row.gif&n=-1' },
-      { id: 'chest_press', name: 'Assisted / Machine Chest Press', muscle: 'Dada & Lengan Belakang', setup158: 'Pegangan sejajar dengan bagian tengah dada.', steps: 'Dorong ke depan hingga hampir lurus.', mistake: 'Bahu ikut terangkat mendekati telinga.', gif: 'https://wsrv.nl/?url=fitnessprogramer.com/wp-content/uploads/2021/02/Machine-Chest-Press.gif&n=-1' },
-      { id: 'lateral_raise', name: 'Dumbbell Lateral Raise', muscle: 'Bahu Samping', setup158: 'Gunakan dumbbell ringan, siku sedikit ditekuk.', steps: 'Angkat lengan ke samping hingga sejajar bahu.', mistake: 'Memakai beban terlalu berat.', gif: 'https://wsrv.nl/?url=fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Lateral-Raise.gif&n=-1' },
-      { id: 'rdl', name: 'Dumbbell Romanian Deadlift (RDL)', muscle: 'Hamstring & Glutes', setup158: 'Berdiri selebar pinggul, kunci lutut sedikit menekuk.', steps: 'Dorong bokong ke belakang menyusuri tulang kering.', mistake: 'Membungkukkan punggung bawah.', gif: 'https://wsrv.nl/?url=fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Romanian-Deadlift.gif&n=-1' },
-      { id: 'leg_curl', name: 'Seated / Lying Leg Curl Machine', muscle: 'Hamstring', setup158: 'Poros putaran mesin sejajar lutut.', steps: 'Tekuk kaki ke bawah sejauh mungkin.', mistake: 'Melepaskan beban tanpa kontrol.', gif: 'https://wsrv.nl/?url=fitnessprogramer.com/wp-content/uploads/2021/02/Seated-Leg-Curl.gif&n=-1' },
-      { id: 'hip_abduction', name: 'Hip Abduction Machine', muscle: 'Outer Glutes', setup158: 'Duduk rapat, luar lutut menempel bantalan.', steps: 'Dorong lutut membuka ke samping.', mistake: 'Menggunakan momentum pantulan.', gif: 'https://wsrv.nl/?url=fitnessprogramer.com/wp-content/uploads/2021/04/Hip-Abduction-Machine.gif&n=-1' },
-      { id: 'shoulder_press', name: 'Shoulder Press Machine', muscle: 'Bahu', setup158: 'Pegangan sejajar telinga di awal.', steps: 'Dorong lurus ke atas kepala.', mistake: 'Melengkungkan punggung bawah berlebihan.', gif: 'https://wsrv.nl/?url=fitnessprogramer.com/wp-content/uploads/2021/02/Lever-Shoulder-Press.gif&n=-1' },
-      { id: 'face_pull', name: 'Cable Face Pull', muscle: 'Bahu Belakang & Postur', setup158: 'Katrol tali setinggi wajah.', steps: 'Tarik tali ke dahi sambil membuka tangan.', mistake: 'Menarik ke arah dada bawah.', gif: 'https://wsrv.nl/?url=fitnessprogramer.com/wp-content/uploads/2021/02/Face-Pull.gif&n=-1' },
-      { id: 'incline_walk', name: 'Incline Treadmill Walk', muscle: 'Fat Loss Low-Impact', setup158: 'Incline 6-10, Speed 4.0 - 4.8 km/jam.', steps: 'Berjalan tegak tanpa berpegangan.', mistake: 'Berpegangan erat sambil condong ke belakang.', gif: 'https://wsrv.nl/?url=fitnessprogramer.com/wp-content/uploads/2021/02/Walking-on-Incline-Treadmill.gif&n=-1' },
-      { id: 'plank', name: 'Forearm Plank & Core', muscle: 'Core', setup158: 'Siku di bawah bahu di atas matras.', steps: 'Kencangkan perut membentuk garis lurus.', mistake: 'Pinggul turun melengkung.', gif: 'https://wsrv.nl/?url=fitnessprogramer.com/wp-content/uploads/2021/02/Plank.gif&n=-1' }
+      { id: 'leg_press', name: 'Seated Leg Press Machine', muscle: 'Bokong (Glutes) & Paha', setup158: 'Majukan kursi hingga lutut membentuk sudut 90 derajat.', steps: 'Dorong papan menggunakan tumit sambil buang napas.', mistake: 'Jangan mengunci lutut sampai lurus mentok.', gif: 'https://fitnessprogramer.com/wp-content/uploads/2015/11/Leg-Press.gif' },
+      { id: 'goblet_squat', name: 'Dumbbell Goblet Squat', muscle: 'Paha Depan & Glutes', setup158: 'Berdiri selebar bahu, pegang dumbbell di depan dada.', steps: 'Dorong pinggul ke belakang bawah seperti duduk.', mistake: 'Lutut jangan masuk ke dalam.', gif: 'https://fitnessprogramer.com/wp-content/uploads/2015/11/Goblet-Squat.gif' },
+      { id: 'leg_ext', name: 'Leg Extension Machine', muscle: 'Paha Depan (Quads)', setup158: 'Lipatan lutut pas menempel di tepi kursi.', steps: 'Luruskan kaki ke atas hingga berkontraksi.', mistake: 'Mengayunkan beban terlalu cepat.', gif: 'https://fitnessprogramer.com/wp-content/uploads/2015/11/Leg-Extension.gif' },
+      { id: 'lat_pulldown', name: 'Machine Lat Pulldown', muscle: 'Punggung Atas & Postur', setup158: 'Turunkan bantalan paha rapat, pegang bar agak lebar.', steps: 'Tarik bar ke dada atas sambil busungkan dada.', mistake: 'Menarik bar ke belakang leher.', gif: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Lat-Pulldown.gif' },
+      { id: 'cable_row', name: 'Seated Cable Row', muscle: 'Punggung Tengah', setup158: 'Kaki di pijakan, lutut sedikit ditekuk.', steps: 'Tarik pegangan ke perut atas sambil menjepit belikat.', mistake: 'Mengayunkan punggung terlalu jauh.', gif: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Seated-Cable-Row.gif' },
+      { id: 'chest_press', name: 'Assisted / Machine Chest Press', muscle: 'Dada & Lengan Belakang', setup158: 'Pegangan sejajar dengan bagian tengah dada.', steps: 'Dorong ke depan hingga hampir lurus.', mistake: 'Bahu ikut terangkat mendekati telinga.', gif: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Machine-Chest-Press.gif' },
+      { id: 'lateral_raise', name: 'Dumbbell Lateral Raise', muscle: 'Bahu Samping', setup158: 'Gunakan dumbbell ringan, siku sedikit ditekuk.', steps: 'Angkat lengan ke samping hingga sejajar bahu.', mistake: 'Memakai beban terlalu berat.', gif: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Lateral-Raise.gif' },
+      { id: 'rdl', name: 'Dumbbell Romanian Deadlift (RDL)', muscle: 'Hamstring & Glutes', setup158: 'Berdiri selebar pinggul, kunci lutut sedikit menekuk.', steps: 'Dorong bokong ke belakang menyusuri tulang kering.', mistake: 'Membungkukkan punggung bawah.', gif: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Romanian-Deadlift.gif' },
+      { id: 'leg_curl', name: 'Seated / Lying Leg Curl Machine', muscle: 'Hamstring', setup158: 'Poros putaran mesin sejajar lutut.', steps: 'Tekuk kaki ke bawah sejauh mungkin.', mistake: 'Melepaskan beban tanpa kontrol.', gif: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Seated-Leg-Curl.gif' },
+      { id: 'hip_abduction', name: 'Hip Abduction Machine', muscle: 'Outer Glutes', setup158: 'Duduk rapat, luar lutut menempel bantalan.', steps: 'Dorong lutut membuka ke samping.', mistake: 'Menggunakan momentum pantulan.', gif: 'https://fitnessprogramer.com/wp-content/uploads/2021/04/Hip-Abduction-Machine.gif' },
+      { id: 'shoulder_press', name: 'Shoulder Press Machine', muscle: 'Bahu', setup158: 'Pegangan sejajar telinga di awal.', steps: 'Dorong lurus ke atas kepala.', mistake: 'Melengkungkan punggung bawah berlebihan.', gif: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Lever-Shoulder-Press.gif' },
+      { id: 'face_pull', name: 'Cable Face Pull', muscle: 'Bahu Belakang & Postur', setup158: 'Katrol tali setinggi wajah.', steps: 'Tarik tali ke dahi sambil membuka tangan.', mistake: 'Menarik ke arah dada bawah.', gif: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Face-Pull.gif' },
+      { id: 'incline_walk', name: 'Incline Treadmill Walk', muscle: 'Fat Loss Low-Impact', setup158: 'Incline 6-10, Speed 4.0 - 4.8 km/jam.', steps: 'Berjalan tegak tanpa berpegangan.', mistake: 'Berpegangan erat sambil condong ke belakang.', gif: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Walking-on-Incline-Treadmill.gif' },
+      { id: 'plank', name: 'Forearm Plank & Core', muscle: 'Core', setup158: 'Siku di bawah bahu di atas matras.', steps: 'Kencangkan perut membentuk garis lurus.', mistake: 'Pinggul turun melengkung.', gif: 'https://fitnessprogramer.com/wp-content/uploads/2021/02/Plank.gif' }
     ];
 
     const defaultFoods = [
@@ -469,7 +471,6 @@
       if (tName === 'gym') { renderMuscleRecovery(); renderWorkoutSection(); }
     }
 
-    // TAB 1: WEIGHT & CALENDAR
     function logWeight() {
       const inp = document.getElementById('input-weight');
       const v = parseFloat(inp.value);
@@ -564,7 +565,6 @@
       renderCalendar(); renderMuscleRecovery(); saveState();
     }
 
-    // TAB 2: GYM & OVERLOAD
     function getMuscleRecoveryData() {
       const now = Date.now();
       const gs = [
@@ -742,7 +742,7 @@
       renderTutorials();
     }
 
-    // TAB 3: TUTORIALS DENGAN GIF ANIMASI (VIA IMAGE PROXY)
+    // TAB 3: TUTORIALS DENGAN GIF ANIMASI TERPROTEKSI (NO-REFERRER)
     function renderTutorials() {
       const q = (document.getElementById('search-tutorial').value || '').toLowerCase();
       document.getElementById('tutorial-cards-container').innerHTML = appState.tutorials
@@ -750,9 +750,9 @@
         .map(t => `
           <div class="card-hover rounded-2xl p-4 border border-rose-100 bg-rose-50/30 flex flex-col justify-between space-y-3">
             <div>
-              <!-- AREA GIF ANIMASI -->
               <div class="w-full aspect-[4/3] rounded-xl overflow-hidden mb-3 border border-rose-100 shadow-inner relative bg-white flex items-center justify-center">
-                <img src="${t.gif}" loading="lazy" onerror="this.onerror=null; this.src='https://placehold.co/600x400/ffe4e6/e11d48/png?text=GIF+Sedang+Dimuat...';" alt="${t.name}" class="w-full h-full object-contain mix-blend-multiply" />
+                <!-- GAMBAR GIF DENGAN REFERRER-POLICY UNTUK BYPASS BLOKIR SERVER -->
+                <img src="${t.gif}" referrerpolicy="no-referrer" loading="lazy" onerror="this.onerror=null; this.src='https://placehold.co/600x400/ffe4e6/e11d48/png?text=GIF+Sedang+Dimuat...';" alt="${t.name}" class="w-full h-full object-contain mix-blend-multiply" />
                 <div class="absolute top-2 right-2 bg-rose-500/80 backdrop-blur-md text-white text-[9px] font-black px-2 py-1 rounded-md shadow-sm">▶ GIF 3D</div>
               </div>
 
@@ -880,7 +880,6 @@
       `).join('');
     }
 
-    // RECAP CARD
     function openShareModal() {
       const tC = (appState.loggedFoods || []).reduce((s, f) => s + f.cal, 0);
       const tP = (appState.loggedFoods || []).reduce((s, f) => s + f.prot, 0);
