@@ -860,57 +860,118 @@
       box.classList.remove('hidden');
     }
 
-async function callGroqVision(apiKey, dataUrl, signal) {
-      const promptText = `Kamu adalah ahli gizi Indonesia. Perhatikan foto makanan/minuman ini dengan teliti.
-Identifikasi secara spesifik semua makanan atau lauk yang ada di dalam foto beserta perkiraan porsinya dalam Bahasa Indonesia (contoh: "Mie Ayam Bakso", "Nasi Putih, Ayam Goreng & Lalapan", "2 Telur Rebus").
-Hitung estimasi total kalori (kkal) dan total protein (gram).
-Balas HANYA dalam format JSON murni dengan struktur persis berikut:
-{"name": "Nama Makanan Spesifik di Foto", "cal": 420, "prot": 26, "detail": "Rincian komponen makanan yang terlihat di foto"}`;
+// =========================================================================
+    // ALTERNATIF: ZERO-KEY FREE VISION AI (TANPA PERLU API KEY / BILLING)
+    // =========================================================================
+    function getActiveApiKey() {
+      return 'free-proxy-active';
+    }
 
-      // Menggunakan model Vision yang aktif di akun Groq-mu
-      const visionModels = [
-        'qwen-3.8-27b',
-        'qwen/qwen-3.8-27b',
-        'qwen-2-vl-7b-instruct'
-      ];
+    function changeApiKey() {
+      const custom = prompt('🔑 Masukkan API Key opsional (atau biarkan kosong untuk menggunakan Free Vision Proxy):');
+      if (custom && custom.trim()) {
+        localStorage.setItem('KIYAS_CUSTOM_GEMINI_KEY', custom.trim());
+        showToast('🔑 Key disimpan!');
+      }
+    }
 
-      let lastErr = '';
-      for (const model of visionModels) {
-        try {
-          const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-              model: model,
-              messages: [{
-                role: 'user',
-                content: [
-                  { type: 'text', text: promptText },
-                  { type: 'image_url', image_url: { url: dataUrl } }
-                ]
-              }],
-              temperature: 0.1,
-              max_completion_tokens: 350,
-              response_format: { type: 'json_object' }
-            }),
-            signal: signal
-          });
+    function openAIScanner() { document.getElementById('ai-file-input').click(); }
 
-          const data = await res.json();
-          if (res.ok && data?.choices?.[0]?.message?.content) {
-            return parseCleanJson(data.choices[0].message.content);
-          }
-          lastErr = data?.error?.message || `HTTP ${res.status}`;
-        } catch (err) {
-          if (signal?.aborted) throw err;
-          lastErr = err.message;
-        }
+    function cancelAIScan() {
+      if (activeScanController) { activeScanController.abort(); activeScanController = null; }
+      document.getElementById('ai-scan-modal').classList.add('hidden');
+    }
+
+    function compressImageToBase64(file, maxWidth = 512, quality = 0.7) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (e) => {
+          const img = new Image();
+          img.src = e.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let w = img.width, h = img.height;
+            if (w > maxWidth) { h = Math.round((h * maxWidth) / w); w = maxWidth; }
+            canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            resolve({ fullDataUrl: dataUrl, base64: dataUrl.split(',')[1], mimeType: 'image/jpeg' });
+          };
+          img.onerror = err => reject(err);
+        };
+        reader.onerror = err => reject(err);
+      });
+    }
+
+    function parseCleanJson(rawText) {
+      const match = (rawText || '').replace(/```json|```/gi, '').match(/\{[\s\S]*\}/);
+      if (!match) throw new Error('Format JSON tidak valid');
+      const parsed = JSON.parse(match[0]);
+      if (!parsed.name) throw new Error('Nama makanan kosong');
+      return parsed;
+    }
+
+    function showAIDetectionBanner(name, cal, prot, detail) {
+      const box = document.getElementById('ai-last-result');
+      document.getElementById('ai-res-title').textContent = `✅ AI Mendeteksi: ${name}`;
+      document.getElementById('ai-res-detail').textContent = detail || 'Dihitung otomatis berdasarkan visual porsi makanan.';
+      document.getElementById('ai-res-macros').textContent = `${cal} kkal • ${prot}g Protein`;
+      box.classList.remove('hidden');
+    }
+
+    async function handleAIScan(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      try {
+        const compressed = await compressImageToBase64(file, 512, 0.7);
+        document.getElementById('ai-preview-img').src = compressed.fullDataUrl;
+        document.getElementById('ai-scan-modal').classList.remove('hidden');
+        document.getElementById('ai-scan-text').textContent = '⚡ Memindai foto makanan secara instan...';
+
+        const promptText = 'Identifikasi makanan atau minuman di foto ini dalam Bahasa Indonesia beserta perkiraan porsinya. Hitung total kalori (kkal) dan protein (gram). Balas HANYA JSON murni tanpa teks lain: {"name": "Nama Makanan", "cal": 400, "prot": 25, "detail": "Rincian porsi"}';
+
+        // Menggunakan jalur proxy publik gratis tanpa API Key berbayar
+        const res = await fetch('https://text.pollinations.ai/openai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'openai',
+            messages: [{
+              role: 'user',
+              content: [
+                { type: 'text', text: promptText },
+                { type: 'image_url', image_url: { url: compressed.fullDataUrl } }
+              ]
+            }]
+          })
+        });
+
+        if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
+        const data = await res.json();
+        const rawContent = data?.choices?.[0]?.message?.content || '';
+        const foodData = parseCleanJson(rawContent);
+
+        document.getElementById('ai-scan-modal').classList.add('hidden');
+
+        const cleanName = (foodData.name || 'Makanan Hasil Scan').trim();
+        const calVal = Math.max(5, Math.round(Number(foodData.cal) || 250));
+        const protVal = Math.max(0, Math.round(Number(foodData.prot) || 15));
+
+        appState.loggedFoods.push({ name: `${cleanName} 📸`, cal: calVal, prot: protVal, tag: 'AI Vision' });
+        showAIDetectionBanner(cleanName, calVal, protVal, foodData.detail || 'Terdeteksi langsung oleh AI Vision');
+        renderNutrition();
+        saveState();
+        if (typeof confetti === 'function') confetti({ particleCount: 55, spread: 65 });
+        showToast(`✨ ${cleanName}: +${calVal} kkal | ${protVal}g Protein`);
+      } catch (error) {
+        document.getElementById('ai-scan-modal').classList.add('hidden');
+        alert('⚠️ Gagal memindai foto:\n' + error.message);
       }
 
-      throw new Error(lastErr || 'Gagal memproses gambar dengan model Qwen Vision.');
+      event.target.value = '';
     }
 
     async function handleAIScan(event) {
