@@ -60,7 +60,7 @@
   <div id="ai-scan-modal" class="hidden fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white rounded-3xl p-5 w-full max-w-sm text-center relative overflow-hidden shadow-2xl border-4 border-rose-200 my-auto">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="font-extrabold text-gray-800 text-base">🤖 Gemini AI Vision (Presisi)</h3>
+        <h3 class="font-extrabold text-gray-800 text-base">🤖 AI Food Scanner & Revisi</h3>
         <button onclick="cancelAIScan()" class="text-gray-400 hover:text-red-500 font-bold text-xl">&times;</button>
       </div>
 
@@ -71,15 +71,15 @@
 
       <!-- State 1: Loading -->
       <div id="ai-loading-state">
-        <p id="ai-scan-text" class="text-sm font-extrabold text-rose-600 animate-pulse">⚡ Gemini AI sedang menganalisis foto piringmu...</p>
-        <p class="text-[11px] text-gray-400 mt-1">Membaca piksel objek secara akurat...</p>
+        <p id="ai-scan-text" class="text-sm font-extrabold text-rose-600 animate-pulse">⚡ AI sedang menganalisis foto piringmu...</p>
+        <p class="text-[11px] text-gray-400 mt-1">Membaca detail makanan secara spesifik...</p>
       </div>
 
       <!-- State 2: Hasil & Opsi Revisi -->
       <div id="ai-result-state" class="hidden text-left space-y-3 pt-1">
         <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-xs text-emerald-900">
           <span class="font-extrabold block mb-0.5">✨ AI Berhasil Mendeteksi!</span>
-          <span class="text-[11px] text-emerald-700">Periksa dan revisi nama, kalori, atau protein makanannya jika ingin disesuaikan:</span>
+          <span class="text-[11px] text-emerald-700">Periksa dan revisi nama, kalori, atau protein makanannya di bawah sebelum disimpan:</span>
         </div>
 
         <div>
@@ -163,7 +163,7 @@
             <span id="cloud-status" class="float-badge bg-amber-400 text-amber-950 text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-full transition shadow-sm">⏳ Menghubungkan...</span>
           </div>
           <h1 class="text-3xl sm:text-4xl font-black tracking-tight mb-1">KIYA'S FIT ✨</h1>
-          <p class="text-rose-100 text-xs sm:text-sm font-semibold">62 kg ➔ 55 kg • Smart Overload • Gemini Vision Presisi</p>
+          <p class="text-rose-100 text-xs sm:text-sm font-semibold">62 kg ➔ 55 kg • Smart Overload • AI Vision Scanner</p>
         </div>
         <div class="flex flex-col sm:items-end gap-2">
           <button onclick="syncFromCloud(true)" class="btn-pop bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white text-xs font-bold px-4 py-2.5 rounded-2xl transition shadow-sm border border-white/20">🔄 Refresh Cloud</button>
@@ -352,7 +352,7 @@
             </div>
             <span id="ai-res-macros" class="text-xs font-black bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 shrink-0">0 kkal • 0g P</span>
           </div>
-          <p class="text-[11px] text-rose-700/80 mt-2 font-medium">✨ Klik <strong>Foto Makanan</strong>, Gemini AI akan mendeteksi isi piringmu secara presisi, lalu kamu bisa merevisi kalori dan proteinnya di pop-up!</p>
+          <p class="text-[11px] text-rose-700/80 mt-2 font-medium">✨ Klik <strong>Foto Makanan</strong>, AI Vision akan mendeteksi isi piringmu secara spesifik, lalu kamu bisa merevisi kalori dan proteinnya di pop-up!</p>
         </div>
 
         <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Rekomendasi Menu Warung (Klik untuk Tambah):</h3>
@@ -836,7 +836,7 @@
     }
 
     // =========================================================================
-    // TAB 4: REAL-TIME GEMINI AI SCANNER (DENGAN POP-UP REVISI)
+    // TAB 4: REAL-TIME AI SCANNER (LANGSUNG BROWSER MURNI TANPA APPS SCRIPT ERROR)
     // =========================================================================
     function openAIScanner() { document.getElementById('ai-file-input').click(); }
     function cancelAIScan() { document.getElementById('ai-scan-modal').classList.add('hidden'); }
@@ -893,36 +893,42 @@
       try {
         const compressed = await compressImageToBase64(file);
         document.getElementById('ai-preview-img').src = compressed.fullDataUrl;
-        document.getElementById('ai-scan-text').textContent = '⚡ Gemini AI sedang menganalisis piksel foto...';
+        document.getElementById('ai-scan-text').textContent = '⚡ AI Vision sedang menganalisis foto makanan...';
 
-        const res = await fetch(APPS_SCRIPT_URL, {
+        const promptText = `Perhatikan foto makanan ini dengan sangat teliti. Identifikasi menu makanan secara spesifik dalam Bahasa Indonesia (contoh: "Olive Fried Chicken", "Nasi Padang Rendang", "Bakso Sapi"). Hitung estimasi total kalori (kkal) dan total protein (gram). Balas HANYA dalam format JSON murni tanpa markdown: {"name": "Nama Makanan Spesifik", "cal": 450, "prot": 32, "detail": "Rincian porsi"}`;
+
+        const res = await fetch('https://text.pollinations.ai/openai', {
           method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            type: 'AI_SCAN',
-            base64: compressed.base64,
-            mimeType: compressed.mimeType
+            model: 'openai',
+            messages: [{
+              role: 'user',
+              content: [
+                { type: 'text', text: promptText },
+                { type: 'image_url', image_url: { url: compressed.fullDataUrl } }
+              ]
+            }]
           })
         });
 
-        const rawText = await res.text();
-        let parsedData = null;
-        try {
-          const match = rawText.replace(/```json|```/gi, '').match(/\{[\s\S]*\}/);
-          if (match) parsedData = JSON.parse(match[0]);
-        } catch (e) {}
+        if (!res.ok) throw new Error('Gagal terhubung ke server AI Vision.');
+        const data = await res.json();
+        const rawContent = data?.choices?.[0]?.message?.content;
+        if (!rawContent) throw new Error('AI tidak memberikan respons.');
 
-        if (!parsedData || !parsedData.name) {
-          throw new Error('AI gagal membaca detail makanan. Respons: ' + rawText.slice(0, 70));
-        }
+        const match = rawContent.replace(/```json|```/gi, '').match(/\{[\s\S]*\}/);
+        if (!match) throw new Error('Format respons AI tidak valid.');
+
+        const parsed = JSON.parse(match[0]);
 
         laser.classList.add('hidden');
         loadingState.classList.add('hidden');
         resultState.classList.remove('hidden');
 
-        document.getElementById('revised-food-name').value = parsedData.name;
-        document.getElementById('revised-food-cal').value = Number(parsedData.cal) || 400;
-        document.getElementById('revised-food-prot').value = Number(parsedData.prot) || 25;
+        document.getElementById('revised-food-name').value = parsed.name || 'Menu Makanan';
+        document.getElementById('revised-food-cal').value = Number(parsed.cal) || 400;
+        document.getElementById('revised-food-prot').value = Number(parsed.prot) || 25;
 
       } catch (error) {
         modal.classList.add('hidden');
@@ -938,7 +944,7 @@
       const prot = Math.max(0, parseInt(document.getElementById('revised-food-prot').value) || 15);
 
       document.getElementById('ai-scan-modal').classList.add('hidden');
-      appState.loggedFoods.push({ name: `${name} 📸`, cal, prot, tag: 'Gemini AI' });
+      appState.loggedFoods.push({ name: `${name} 📸`, cal, prot, tag: 'AI Vision' });
       showAIDetectionBanner(name, cal, prot, 'Dikonfirmasi & direvisi manual');
       renderNutrition();
       saveState();
