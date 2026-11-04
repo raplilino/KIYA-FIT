@@ -60,7 +60,7 @@
   <div id="ai-scan-modal" class="hidden fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white rounded-3xl p-5 w-full max-w-sm text-center relative overflow-hidden shadow-2xl border-4 border-rose-200 my-auto">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="font-extrabold text-gray-800 text-base">🤖 AI Food Scanner & Revisi</h3>
+        <h3 class="font-extrabold text-gray-800 text-base">🤖 Gemini AI Vision Scanner</h3>
         <button onclick="cancelAIScan()" class="text-gray-400 hover:text-red-500 font-bold text-xl">&times;</button>
       </div>
 
@@ -71,19 +71,19 @@
 
       <!-- State 1: Loading -->
       <div id="ai-loading-state">
-        <p id="ai-scan-text" class="text-sm font-extrabold text-rose-600 animate-pulse">⚡ Memproses foto lewat server AI (Key AQ.)...</p>
-        <p class="text-[11px] text-gray-400 mt-1">Mengenali isi piring secara nyata...</p>
+        <p id="ai-scan-text" class="text-sm font-extrabold text-rose-600 animate-pulse">⚡ Gemini AI sedang menganalisis foto piringmu...</p>
+        <p class="text-[11px] text-gray-400 mt-1">Membaca piksel gambar secara nyata...</p>
       </div>
 
       <!-- State 2: Hasil & Opsi Revisi -->
       <div id="ai-result-state" class="hidden text-left space-y-3 pt-1">
         <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-xs text-emerald-900">
           <span class="font-extrabold block mb-0.5">✨ AI Berhasil Mendeteksi!</span>
-          <span class="text-[11px] text-emerald-700">Kamu bisa merevisi nama makanan atau jumlah kalorinya di bawah sebelum disimpan:</span>
+          <span class="text-[11px] text-emerald-700">Periksa dan revisi nama atau kalori makanannya jika diperlukan:</span>
         </div>
 
         <div>
-          <label class="text-[10px] font-extrabold text-gray-500 uppercase tracking-wider block mb-1">Nama Makanan (Bisa Direvisi):</label>
+          <label class="text-[10px] font-extrabold text-gray-500 uppercase tracking-wider block mb-1">Nama Makanan:</label>
           <input type="text" id="revised-food-name" class="w-full border border-rose-200 rounded-xl px-3 py-2 text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-rose-400 bg-rose-50/30" />
         </div>
 
@@ -352,7 +352,7 @@
             </div>
             <span id="ai-res-macros" class="text-xs font-black bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 shrink-0">0 kkal • 0g P</span>
           </div>
-          <p class="text-[11px] text-rose-700/80 mt-2 font-medium">✨ Klik <strong>Foto Makanan</strong>, biarkan Apps Script & key AQ. mengenali fotomu secara nyata, lalu revisi kalori dan proteinnya di pop-up!</p>
+          <p class="text-[11px] text-rose-700/80 mt-2 font-medium">✨ Klik <strong>Foto Makanan</strong>, biarkan server Apps Script mengenali fotomu secara nyata, lalu revisi kalori dan proteinnya di pop-up!</p>
         </div>
 
         <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Rekomendasi Menu Warung (Klik untuk Tambah):</h3>
@@ -370,8 +370,8 @@
   <script>
     const STORAGE_KEY = 'kiyas_fit_tracker_cloud_v5';
     const LEGACY_KEYS = ['kiyas_fit_tracker_cloud_v6', 'kiyas_fit_tracker_cloud_v5', 'kiyas_fit_tracker_cloud_v3', 'kiyas_fit_tracker_cloud_v2'];
-    // URL Deployment Google Apps Script baru milikmu
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzuEhkpm6JqsSB3TcoUK1iQcmdUVxEqWJnIEYF6U-oj_hYhJAE6y8blC8x24hbTzMff/exec';
+    // URL Deployment Google Apps Script baru
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwhOjzZSBS0t06vjlBlHWjuV4fruIIHxPsXRzT6ih3h3aypbKIx7ofvyGG1LqEpDWp-/exec';
 
     const exerciseMeta = {
       leg_press: { step: 2.5, group: 'lower', label: 'Lower Body' },
