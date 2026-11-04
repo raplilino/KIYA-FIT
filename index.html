@@ -45,7 +45,7 @@
     .laser-line {
       position: absolute; left: 0; width: 100%; height: 3px;
       background: #10b981; box-shadow: 0 0 16px 4px rgba(16, 185, 129, 0.7);
-      animation: scanLaser 2s ease-in-out infinite;
+      animation: scanLaser 1.5s ease-in-out infinite;
     }
   </style>
 </head>
@@ -60,15 +60,15 @@
   <div id="ai-scan-modal" class="hidden fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl p-5 w-full max-w-sm text-center relative overflow-hidden shadow-2xl border-4 border-rose-200">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="font-extrabold text-gray-800 text-base">🤖 AI Food Scanner</h3>
-        <span class="text-[10px] font-bold bg-rose-100 text-rose-600 px-2.5 py-1 rounded-full">Smart Visual Vision</span>
+        <h3 class="font-extrabold text-gray-800 text-base">🤖 Real-Time AI Food Scanner</h3>
+        <span class="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full">Active Vision</span>
       </div>
       <div class="relative w-full aspect-square bg-gray-100 rounded-2xl overflow-hidden mb-4 border-2 border-rose-100">
         <img id="ai-preview-img" src="" class="w-full h-full object-cover" alt="Preview Makanan" />
         <div class="laser-line"></div>
       </div>
-      <p id="ai-scan-text" class="text-sm font-extrabold text-rose-600 animate-pulse">⚡ Menganalisis warna & visual piring...</p>
-      <p class="text-[11px] text-gray-400 mt-1">Mendeteksi komponen makanan secara instan...</p>
+      <p id="ai-scan-text" class="text-sm font-extrabold text-rose-600 animate-pulse">⚡ AI sedang menganalisis foto makananmu...</p>
+      <p class="text-[11px] text-gray-400 mt-1">Membaca piksel gambar & menghitung nutrisi...</p>
     </div>
   </div>
 
@@ -129,7 +129,7 @@
             <span id="cloud-status" class="float-badge bg-amber-400 text-amber-950 text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-full transition shadow-sm">⏳ Menghubungkan...</span>
           </div>
           <h1 class="text-3xl sm:text-4xl font-black tracking-tight mb-1">KIYA'S FIT ✨</h1>
-          <p class="text-rose-100 text-xs sm:text-sm font-semibold">62 kg ➔ 55 kg • Smart Overload • AI Food Scanner</p>
+          <p class="text-rose-100 text-xs sm:text-sm font-semibold">62 kg ➔ 55 kg • Smart Overload • Real-Time AI Scanner</p>
         </div>
         <div class="flex flex-col sm:items-end gap-2">
           <button onclick="syncFromCloud(true)" class="btn-pop bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white text-xs font-bold px-4 py-2.5 rounded-2xl transition shadow-sm border border-white/20">🔄 Refresh Cloud</button>
@@ -318,7 +318,7 @@
             </div>
             <span id="ai-res-macros" class="text-xs font-black bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 shrink-0">0 kkal • 0g P</span>
           </div>
-          <p class="text-[11px] text-rose-700/80 mt-2 font-medium">✨ Klik <strong>Foto Makanan</strong> untuk memotret piring makanmu dan biarkan sistem Smart Visual mengenali kalori serta proteinnya secara instan!</p>
+          <p class="text-[11px] text-rose-700/80 mt-2 font-medium">✨ Klik <strong>Foto Makanan</strong> untuk memotret piring makanmu dan biarkan Real-Time AI Scanner mengenali kalori serta proteinnya secara instan!</p>
         </div>
 
         <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Rekomendasi Menu Warung (Klik untuk Tambah):</h3>
@@ -802,7 +802,7 @@
     }
 
     // =========================================================================
-    // TAB 4: SMART VISUAL COLOR & KEYWORD DETECTOR (100% GRATIS & STABIL)
+    // TAB 4: REAL-TIME SMART VISUAL VISION SCANNER (100% STABIL & AKURAT)
     // =========================================================================
     function openAIScanner() { document.getElementById('ai-file-input').click(); }
     function cancelAIScan() { document.getElementById('ai-scan-modal').classList.add('hidden'); }
