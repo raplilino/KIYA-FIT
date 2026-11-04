@@ -881,52 +881,44 @@
       if (!file) return;
 
       try {
-        const compressed = await compressImageToBase64(file);
+        const compressed = await compressImageToBase64(file, 512, 0.75);
         document.getElementById('ai-preview-img').src = compressed.fullDataUrl;
         document.getElementById('ai-scan-modal').classList.remove('hidden');
         document.getElementById('ai-laser').classList.remove('hidden');
         document.getElementById('ai-loading-state').classList.remove('hidden');
         document.getElementById('ai-result-state').classList.add('hidden');
-        document.getElementById('ai-scan-text').textContent = '⚡ Groq AI Vision sedang membaca foto piringmu...';
+        document.getElementById('ai-scan-text').textContent = '⚡ AI Vision sedang menganalisis foto makananmu...';
 
         const promptText = `Perhatikan foto makanan ini dengan sangat teliti. 
-Identifikasi menu makanan secara spesifik dalam Bahasa Indonesia (contoh: "Olive Fried Chicken (Nasi + Sayap Ayam + Es Teh)", "Nasi Padang Rendang", "Bakso Sapi").
-Hitung estimasi total kalori (kkal) dan total protein (gram) berdasarkan apa yang terlihat di foto.
-Balas HANYA dalam format JSON murni tanpa markdown, tanpa teks lain:
-{"name": "Nama Makanan Spesifik", "cal": 480, "prot": 28, "detail": "Rincian porsi"} `;
+Identifikasi menu makanan secara spesifik dalam Bahasa Indonesia (contoh: "Daging Sapi Panggang / Se’i", "Sate Ayam", "Olive Fried Chicken").
+Hitung estimasi total kalori (kkal) dan total protein (gram) berdasarkan porsi yang terlihat.
+Balas HANYA dalam format JSON murni tanpa markdown:
+{"name": "Nama Makanan Spesifik", "cal": 450, "prot": 32, "detail": "Rincian porsi"} `;
 
-        const groqKey = [
-          'gsk_LYNuXQxQlKhD',
-          'dfzo5MQDWGdyb3FY',
-          'NfNBW1NSNUTQGnhO',
-          'DOEXjARx'
-        ].join('');
-
-        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        const res = await fetch('https://text.pollinations.ai/openai', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${groqKey}`
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+            model: 'openai',
             messages: [{
               role: 'user',
               content: [
                 { type: 'text', text: promptText },
                 { type: 'image_url', image_url: { url: compressed.fullDataUrl } }
               ]
-            }],
-            temperature: 0.1,
-            response_format: { type: 'json_object' }
+            }]
           })
         });
 
+        if (!res.ok) throw new Error('Gagal terhubung ke server AI Vision.');
         const data = await res.json();
         const rawContent = data?.choices?.[0]?.message?.content;
-        if (!rawContent) throw new Error('AI tidak memberikan respons.');
+        if (!rawContent) throw new Error('AI tidak memberikan respons gambar.');
 
-        const parsed = JSON.parse(rawContent);
+        const match = rawContent.replace(/```json|```/gi, '').match(/\{[\s\S]*\}/);
+        if (!match) throw new Error('Format respons AI tidak valid.');
+
+        const parsed = JSON.parse(match[0]);
 
         document.getElementById('ai-laser').classList.add('hidden');
         document.getElementById('ai-loading-state').classList.add('hidden');
