@@ -867,11 +867,12 @@ Hitung estimasi total kalori (kkal) dan total protein (gram).
 Balas HANYA dalam format JSON murni dengan struktur persis berikut:
 {"name": "Nama Makanan Spesifik di Foto", "cal": 420, "prot": 26, "detail": "Rincian komponen makanan yang terlihat di foto"}`;
 
+      // Daftar model vision terbaru yang aktif di Groq
       const visionModels = [
         'meta-llama/llama-4-scout-17b-16e-instruct',
         'meta-llama/llama-4-maverick-17b-128e-instruct',
-        'llama-3.2-90b-vision-preview',
-        'llama-3.2-11b-vision-preview'
+        'llama-3.3-70b-versatile',
+        'llama-3.1-8b-instant'
       ];
 
       let lastErr = '';
