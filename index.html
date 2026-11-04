@@ -352,7 +352,7 @@
             </div>
             <span id="ai-res-macros" class="text-xs font-black bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 shrink-0">0 kkal • 0g P</span>
           </div>
-          <p class="text-[11px] text-rose-700/80 mt-2 font-medium">✨ Klik <strong>Foto Makanan</strong>, Gemini AI Vision akan mendeteksi isi piringmu secara presisi, lalu kamu bisa merevisi kalori dan proteinnya di pop-up!</p>
+          <p class="text-[11px] text-rose-700/80 mt-2 font-medium">✨ Klik <strong>Foto Makanan</strong>, Gemini AI akan mendeteksi isi piringmu secara presisi, lalu kamu bisa merevisi kalori dan proteinnya di pop-up!</p>
         </div>
 
         <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Rekomendasi Menu Warung (Klik untuk Tambah):</h3>
@@ -371,9 +371,6 @@
     const STORAGE_KEY = 'kiyas_fit_tracker_cloud_v5';
     const LEGACY_KEYS = ['kiyas_fit_tracker_cloud_v6', 'kiyas_fit_tracker_cloud_v5', 'kiyas_fit_tracker_cloud_v3', 'kiyas_fit_tracker_cloud_v2'];
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwhOjzZSBS0t06vjlBlHWjuV4fruIIHxPsXRzT6ih3h3aypbKIx7ofvyGG1LqEpDWp-/exec';
-    
-    // Kunci API Key Gemini (AQ.) milikmu yang diproses aman via backend Apps Script
-    const GEMINI_AQ_KEY = 'AQ.Ab8RN6JCPjoBaMuhF3U6Zp-Rjxkn3hFWuJEIcmYryFp85vc7HA';
 
     const exerciseMeta = {
       leg_press: { step: 2.5, group: 'lower', label: 'Lower Body' },
@@ -839,7 +836,7 @@
     }
 
     // =========================================================================
-    // TAB 4: REAL-TIME GEMINI VISION AI VIA APPS SCRIPT (PRESISI & AMAN)
+    // TAB 4: REAL-TIME GEMINI AI SCANNER (DENGAN POP-UP REVISI)
     // =========================================================================
     function openAIScanner() { document.getElementById('ai-file-input').click(); }
     function cancelAIScan() { document.getElementById('ai-scan-modal').classList.add('hidden'); }
@@ -883,16 +880,21 @@
       const file = event.target.files[0];
       if (!file) return;
 
+      const modal = document.getElementById('ai-scan-modal');
+      const loadingState = document.getElementById('ai-loading-state');
+      const resultState = document.getElementById('ai-result-state');
+      const laser = document.getElementById('ai-laser');
+
+      modal.classList.remove('hidden');
+      loadingState.classList.remove('hidden');
+      resultState.classList.add('hidden');
+      laser.classList.remove('hidden');
+
       try {
         const compressed = await compressImageToBase64(file);
         document.getElementById('ai-preview-img').src = compressed.fullDataUrl;
-        document.getElementById('ai-scan-modal').classList.remove('hidden');
-        document.getElementById('ai-laser').classList.remove('hidden');
-        document.getElementById('ai-loading-state').classList.remove('hidden');
-        document.getElementById('ai-result-state').classList.add('hidden');
-        document.getElementById('ai-scan-text').textContent = '⚡ Gemini AI sedang menganalisis piksel foto makanan...';
+        document.getElementById('ai-scan-text').textContent = '⚡ Gemini AI sedang menganalisis piksel foto...';
 
-        // Mengirim foto langsung ke server Apps Script yang membawa key AQ. milikmu
         const res = await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -911,20 +913,19 @@
         } catch (e) {}
 
         if (!parsedData || !parsedData.name) {
-          throw new Error('AI gagal membaca detail makanan. Respons server: ' + rawText.slice(0, 80));
+          throw new Error('AI gagal membaca detail makanan. Respons: ' + rawText.slice(0, 70));
         }
 
-        document.getElementById('ai-laser').classList.add('hidden');
-        document.getElementById('ai-loading-state').classList.add('hidden');
-        document.getElementById('ai-result-state').classList.remove('hidden');
+        laser.classList.add('hidden');
+        loadingState.classList.add('hidden');
+        resultState.classList.remove('hidden');
 
-        // Mengisi form pop-up revisi murni dengan hasil deteksi Gemini AI
         document.getElementById('revised-food-name').value = parsedData.name;
         document.getElementById('revised-food-cal').value = Number(parsedData.cal) || 400;
         document.getElementById('revised-food-prot').value = Number(parsedData.prot) || 25;
 
       } catch (error) {
-        document.getElementById('ai-scan-modal').classList.add('hidden');
+        modal.classList.add('hidden');
         alert('⚠️ Gagal memindai foto: ' + error.message);
       }
 
