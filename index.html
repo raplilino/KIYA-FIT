@@ -71,8 +71,8 @@
 
       <!-- State 1: Loading -->
       <div id="ai-loading-state">
-        <p id="ai-scan-text" class="text-sm font-extrabold text-rose-600 animate-pulse">⚡ AI sedang membaca foto makananmu...</p>
-        <p class="text-[11px] text-gray-400 mt-1">Mendeteksi menu & porsi...</p>
+        <p id="ai-scan-text" class="text-sm font-extrabold text-rose-600 animate-pulse">⚡ Memproses foto lewat server AI (Key AQ.)...</p>
+        <p class="text-[11px] text-gray-400 mt-1">Mengenali isi piring secara nyata...</p>
       </div>
 
       <!-- State 2: Hasil & Opsi Revisi -->
@@ -163,7 +163,7 @@
             <span id="cloud-status" class="float-badge bg-amber-400 text-amber-950 text-[10px] uppercase tracking-wider font-extrabold px-3 py-1 rounded-full transition shadow-sm">⏳ Menghubungkan...</span>
           </div>
           <h1 class="text-3xl sm:text-4xl font-black tracking-tight mb-1">KIYA'S FIT ✨</h1>
-          <p class="text-rose-100 text-xs sm:text-sm font-semibold">62 kg ➔ 55 kg • Smart Overload • AI Food Scanner</p>
+          <p class="text-rose-100 text-xs sm:text-sm font-semibold">62 kg ➔ 55 kg • Smart Overload • Real-Time AI Scanner</p>
         </div>
         <div class="flex flex-col sm:items-end gap-2">
           <button onclick="syncFromCloud(true)" class="btn-pop bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white text-xs font-bold px-4 py-2.5 rounded-2xl transition shadow-sm border border-white/20">🔄 Refresh Cloud</button>
@@ -352,7 +352,7 @@
             </div>
             <span id="ai-res-macros" class="text-xs font-black bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 shrink-0">0 kkal • 0g P</span>
           </div>
-          <p class="text-[11px] text-rose-700/80 mt-2 font-medium">✨ Klik <strong>Foto Makanan</strong> untuk memotret piring makanmu dan sesuaikan/revisi hasilnya sesukamu sebelum masuk ke target harian!</p>
+          <p class="text-[11px] text-rose-700/80 mt-2 font-medium">✨ Klik <strong>Foto Makanan</strong>, biarkan Apps Script & key AQ. mengenali fotomu secara nyata, lalu revisi kalori dan proteinnya di pop-up!</p>
         </div>
 
         <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Rekomendasi Menu Warung (Klik untuk Tambah):</h3>
@@ -370,7 +370,8 @@
   <script>
     const STORAGE_KEY = 'kiyas_fit_tracker_cloud_v5';
     const LEGACY_KEYS = ['kiyas_fit_tracker_cloud_v6', 'kiyas_fit_tracker_cloud_v5', 'kiyas_fit_tracker_cloud_v3', 'kiyas_fit_tracker_cloud_v2'];
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwasCavBij_b5CwoaLuL6Mr8K29CbVA8PxGfUdrrIUEUZKaerfvHBOqCptUUVkikW4/exec';
+    // URL Deployment Google Apps Script baru milikmu
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzuEhkpm6JqsSB3TcoUK1iQcmdUVxEqWJnIEYF6U-oj_hYhJAE6y8blC8x24hbTzMff/exec';
 
     const exerciseMeta = {
       leg_press: { step: 2.5, group: 'lower', label: 'Lower Body' },
@@ -836,12 +837,12 @@
     }
 
     // =========================================================================
-    // TAB 4: REAL-TIME AI SCANNER + REVISI MANUAL
+    // TAB 4: REAL-TIME AI SCANNER VIA APPS SCRIPT (KEY AQ.) + POP-UP REVISI
     // =========================================================================
     function openAIScanner() { document.getElementById('ai-file-input').click(); }
     function cancelAIScan() { document.getElementById('ai-scan-modal').classList.add('hidden'); }
 
-    function compressImageToBase64(file, maxWidth = 512, quality = 0.7) {
+    function compressImageToBase64(file, maxWidth = 512, quality = 0.72) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -855,9 +856,10 @@
             canvas.width = w; canvas.height = h;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, w, h);
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
             resolve({
-              fullDataUrl: canvas.toDataURL('image/jpeg', quality),
-              base64: canvas.toDataURL('image/jpeg', quality).split(',')[1],
+              fullDataUrl: dataUrl,
+              base64: dataUrl.split(',')[1],
               mimeType: 'image/jpeg'
             });
           };
@@ -908,42 +910,39 @@
         document.getElementById('ai-laser').classList.remove('hidden');
         document.getElementById('ai-loading-state').classList.remove('hidden');
         document.getElementById('ai-result-state').classList.add('hidden');
-        document.getElementById('ai-scan-text').textContent = '⚡ Menganalisis isi foto makanan...';
+        document.getElementById('ai-scan-text').textContent = '⚡ Memproses foto lewat server Apps Script (Key AQ.)...';
 
-        const promptText = 'Identifikasi makanan/minuman di foto ini dalam Bahasa Indonesia. Balas HANYA JSON murni tanpa teks lain: {"name": "Nama Makanan", "cal": 400, "prot": 25, "detail": "Rincian porsi"}';
-
-        const res = await fetch('https://text.pollinations.ai/openai', {
+        const res = await fetch(APPS_SCRIPT_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({
-            model: 'openai',
-            messages: [{
-              role: 'user',
-              content: [
-                { type: 'text', text: promptText },
-                { type: 'image_url', image_url: { url: compressed.fullDataUrl } }
-              ]
-            }]
+            type: 'AI_SCAN',
+            base64: compressed.base64,
+            mimeType: compressed.mimeType
           })
         });
 
-        let detectedName = 'Paket Nasi & Lauk Pauk';
-        let detectedCal = 420;
-        let detectedProt = 26;
+        const rawText = await res.text();
+        let parsedData = null;
+        try {
+          const match = rawText.replace(/```json|```/gi, '').match(/\{[\s\S]*\}/);
+          if (match) parsedData = JSON.parse(match[0]);
+        } catch (e) {}
 
-        if (res.ok) {
-          const data = await res.json();
-          const raw = data?.choices?.[0]?.message?.content || '';
-          const match = raw.match(/\{[\s\S]*\}/);
-          if (match) {
-            const parsed = JSON.parse(match[0]);
-            if (parsed.name) detectedName = parsed.name;
-            if (parsed.cal) detectedCal = Number(parsed.cal);
-            if (parsed.prot) detectedProt = Number(parsed.prot);
-          }
+        let detectedName = 'Menu Piring';
+        let detectedCal = 350;
+        let detectedProt = 20;
+
+        if (parsedData && parsedData.name) {
+          detectedName = parsedData.name;
+          detectedCal = Number(parsedData.cal) || 350;
+          detectedProt = Number(parsedData.prot) || 20;
+        } else {
+          const est = estimateIndonesianFood(rawText);
+          detectedCal = est.cal;
+          detectedProt = est.prot;
         }
 
-        // Tampilkan ke Modal Pop-up Revisi
         document.getElementById('ai-laser').classList.add('hidden');
         document.getElementById('ai-loading-state').classList.add('hidden');
         document.getElementById('ai-result-state').classList.remove('hidden');
@@ -966,7 +965,7 @@
       const prot = Math.max(0, parseInt(document.getElementById('revised-food-prot').value) || 15);
 
       document.getElementById('ai-scan-modal').classList.add('hidden');
-      appState.loggedFoods.push({ name: `${name} 📸`, cal, prot, tag: 'Scan & Revisi' });
+      appState.loggedFoods.push({ name: `${name} 📸`, cal, prot, tag: 'AI Vision' });
       showAIDetectionBanner(name, cal, prot, 'Dikonfirmasi & direvisi manual');
       renderNutrition();
       saveState();
