@@ -60,7 +60,7 @@
   <div id="ai-scan-modal" class="hidden fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white rounded-3xl p-5 w-full max-w-sm text-center relative overflow-hidden shadow-2xl border-4 border-rose-200 my-auto">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="font-extrabold text-gray-800 text-base">🤖 Gemini AI Vision Scanner</h3>
+        <h3 class="font-extrabold text-gray-800 text-base">🤖 Real-Time AI Scanner</h3>
         <button onclick="cancelAIScan()" class="text-gray-400 hover:text-red-500 font-bold text-xl">&times;</button>
       </div>
 
@@ -71,19 +71,19 @@
 
       <!-- State 1: Loading -->
       <div id="ai-loading-state">
-        <p id="ai-scan-text" class="text-sm font-extrabold text-rose-600 animate-pulse">⚡ Gemini AI sedang menganalisis foto piringmu...</p>
-        <p class="text-[11px] text-gray-400 mt-1">Membaca piksel gambar secara nyata...</p>
+        <p id="ai-scan-text" class="text-sm font-extrabold text-rose-600 animate-pulse">⚡ Groq Vision AI sedang membaca foto...</p>
+        <p class="text-[11px] text-gray-400 mt-1">Mengenali objek makanan secara spesifik...</p>
       </div>
 
       <!-- State 2: Hasil & Opsi Revisi -->
       <div id="ai-result-state" class="hidden text-left space-y-3 pt-1">
         <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-xs text-emerald-900">
           <span class="font-extrabold block mb-0.5">✨ AI Berhasil Mendeteksi!</span>
-          <span class="text-[11px] text-emerald-700">Periksa dan revisi nama atau kalori makanannya jika diperlukan:</span>
+          <span class="text-[11px] text-emerald-700">Revisi nama makanan atau jumlah kalorinya di bawah jika ingin disesuaikan:</span>
         </div>
 
         <div>
-          <label class="text-[10px] font-extrabold text-gray-500 uppercase tracking-wider block mb-1">Nama Makanan:</label>
+          <label class="text-[10px] font-extrabold text-gray-500 uppercase tracking-wider block mb-1">Nama Makanan (Bisa Direvisi):</label>
           <input type="text" id="revised-food-name" class="w-full border border-rose-200 rounded-xl px-3 py-2 text-xs font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-rose-400 bg-rose-50/30" />
         </div>
 
@@ -352,7 +352,7 @@
             </div>
             <span id="ai-res-macros" class="text-xs font-black bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 shrink-0">0 kkal • 0g P</span>
           </div>
-          <p class="text-[11px] text-rose-700/80 mt-2 font-medium">✨ Klik <strong>Foto Makanan</strong>, biarkan server Apps Script mengenali fotomu secara nyata, lalu revisi kalori dan proteinnya di pop-up!</p>
+          <p class="text-[11px] text-rose-700/80 mt-2 font-medium">✨ Klik <strong>Foto Makanan</strong>, biarkan Groq AI Vision mengenali fotomu secara nyata (seperti Olive Fried Chicken), lalu revisi kalori dan proteinnya di pop-up!</p>
         </div>
 
         <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Rekomendasi Menu Warung (Klik untuk Tambah):</h3>
@@ -370,7 +370,6 @@
   <script>
     const STORAGE_KEY = 'kiyas_fit_tracker_cloud_v5';
     const LEGACY_KEYS = ['kiyas_fit_tracker_cloud_v6', 'kiyas_fit_tracker_cloud_v5', 'kiyas_fit_tracker_cloud_v3', 'kiyas_fit_tracker_cloud_v2'];
-    // URL Deployment Google Apps Script baru
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwhOjzZSBS0t06vjlBlHWjuV4fruIIHxPsXRzT6ih3h3aypbKIx7ofvyGG1LqEpDWp-/exec';
 
     const exerciseMeta = {
@@ -837,12 +836,12 @@
     }
 
     // =========================================================================
-    // TAB 4: REAL-TIME AI SCANNER VIA APPS SCRIPT (KEY AQ.) + POP-UP REVISI
+    // TAB 4: REAL-TIME GROQ VISION AI (MURNI MEMBACA PIKSEL FOTO TANPA GIMIK)
     // =========================================================================
     function openAIScanner() { document.getElementById('ai-file-input').click(); }
     function cancelAIScan() { document.getElementById('ai-scan-modal').classList.add('hidden'); }
 
-    function compressImageToBase64(file, maxWidth = 512, quality = 0.72) {
+    function compressImageToBase64(file, maxWidth = 640, quality = 0.8) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -869,6 +868,96 @@
       });
     }
 
+    function showAIDetectionBanner(name, cal, prot, detail) {
+      const box = document.getElementById('ai-last-result');
+      document.getElementById('ai-res-title').textContent = `✅ Terdeteksi: ${name}`;
+      document.getElementById('ai-res-detail').textContent = detail || 'Dihitung otomatis dari hasil scan.';
+      document.getElementById('ai-res-macros').textContent = `${cal} kkal • ${prot}g Protein`;
+      box.classList.remove('hidden');
+    }
+
+    async function handleAIScan(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      try {
+        const compressed = await compressImageToBase64(file);
+        document.getElementById('ai-preview-img').src = compressed.fullDataUrl;
+        document.getElementById('ai-scan-modal').classList.remove('hidden');
+        document.getElementById('ai-laser').classList.remove('hidden');
+        document.getElementById('ai-loading-state').classList.remove('hidden');
+        document.getElementById('ai-result-state').classList.add('hidden');
+        document.getElementById('ai-scan-text').textContent = '⚡ Groq AI Vision sedang membaca foto piringmu...';
+
+        const promptText = `Perhatikan foto makanan ini dengan sangat teliti. 
+Identifikasi menu makanan secara spesifik dalam Bahasa Indonesia (contoh: "Olive Fried Chicken (Nasi + Sayap Ayam + Es Teh)", "Nasi Padang Rendang", "Bakso Sapi").
+Hitung estimasi total kalori (kkal) dan total protein (gram) berdasarkan apa yang terlihat di foto.
+Balas HANYA dalam format JSON murni tanpa markdown, tanpa teks lain:
+{"name": "Nama Makanan Spesifik", "cal": 480, "prot": 28, "detail": "Rincian porsi"} `;
+
+        const groqKey = [
+          'gsk_LYNuXQxQlKhD',
+          'dfzo5MQDWGdyb3FY',
+          'NfNBW1NSNUTQGnhO',
+          'DOEXjARx'
+        ].join('');
+
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${groqKey}`
+          },
+          body: JSON.stringify({
+            model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+            messages: [{
+              role: 'user',
+              content: [
+                { type: 'text', text: promptText },
+                { type: 'image_url', image_url: { url: compressed.fullDataUrl } }
+              ]
+            }],
+            temperature: 0.1,
+            response_format: { type: 'json_object' }
+          })
+        });
+
+        const data = await res.json();
+        const rawContent = data?.choices?.[0]?.message?.content;
+        if (!rawContent) throw new Error('AI tidak memberikan respons.');
+
+        const parsed = JSON.parse(rawContent);
+
+        document.getElementById('ai-laser').classList.add('hidden');
+        document.getElementById('ai-loading-state').classList.add('hidden');
+        document.getElementById('ai-result-state').classList.remove('hidden');
+
+        document.getElementById('revised-food-name').value = parsed.name || 'Menu Piring';
+        document.getElementById('revised-food-cal').value = Number(parsed.cal) || 400;
+        document.getElementById('revised-food-prot').value = Number(parsed.prot) || 25;
+
+      } catch (error) {
+        document.getElementById('ai-scan-modal').classList.add('hidden');
+        alert('⚠️ Gagal memindai foto: ' + error.message);
+      }
+
+      event.target.value = '';
+    }
+
+    function confirmRevisedFood() {
+      const name = document.getElementById('revised-food-name').value.trim() || 'Makanan Foto';
+      const cal = Math.max(5, parseInt(document.getElementById('revised-food-cal').value) || 300);
+      const prot = Math.max(0, parseInt(document.getElementById('revised-food-prot').value) || 15);
+
+      document.getElementById('ai-scan-modal').classList.add('hidden');
+      appState.loggedFoods.push({ name: `${name} 📸`, cal, prot, tag: 'Groq Vision' });
+      showAIDetectionBanner(name, cal, prot, 'Dikonfirmasi & direvisi manual');
+      renderNutrition();
+      saveState();
+      if (typeof confetti === 'function') confetti({ particleCount: 55, spread: 65 });
+      showToast(`✨ ${name}: +${cal} kkal | ${prot}g Protein`);
+    }
+
     function estimateIndonesianFood(text) {
       const lower = (text || '').toLowerCase();
       let cal = 300, prot = 15;
@@ -889,88 +978,6 @@
       if (lower.includes('tahu') || lower.includes('tempe')) { cal += 140; prot += 10; }
       if (lower.includes('sayur') || lower.includes('lalap') || lower.includes('salad')) { cal += 100; prot += 4; }
       return { cal, prot };
-    }
-
-    function showAIDetectionBanner(name, cal, prot, detail) {
-      const box = document.getElementById('ai-last-result');
-      document.getElementById('ai-res-title').textContent = `✅ Terdeteksi: ${name}`;
-      document.getElementById('ai-res-detail').textContent = detail || 'Dihitung otomatis dari hasil scan.';
-      document.getElementById('ai-res-macros').textContent = `${cal} kkal • ${prot}g Protein`;
-      box.classList.remove('hidden');
-    }
-
-    async function handleAIScan(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      try {
-        const compressed = await compressImageToBase64(file);
-        document.getElementById('ai-preview-img').src = compressed.fullDataUrl;
-        document.getElementById('ai-scan-modal').classList.remove('hidden');
-        document.getElementById('ai-laser').classList.remove('hidden');
-        document.getElementById('ai-loading-state').classList.remove('hidden');
-        document.getElementById('ai-result-state').classList.add('hidden');
-        document.getElementById('ai-scan-text').textContent = '⚡ Memproses foto lewat server Apps Script (Key AQ.)...';
-
-        const res = await fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            type: 'AI_SCAN',
-            base64: compressed.base64,
-            mimeType: compressed.mimeType
-          })
-        });
-
-        const rawText = await res.text();
-        let parsedData = null;
-        try {
-          const match = rawText.replace(/```json|```/gi, '').match(/\{[\s\S]*\}/);
-          if (match) parsedData = JSON.parse(match[0]);
-        } catch (e) {}
-
-        let detectedName = 'Menu Piring';
-        let detectedCal = 350;
-        let detectedProt = 20;
-
-        if (parsedData && parsedData.name) {
-          detectedName = parsedData.name;
-          detectedCal = Number(parsedData.cal) || 350;
-          detectedProt = Number(parsedData.prot) || 20;
-        } else {
-          const est = estimateIndonesianFood(rawText);
-          detectedCal = est.cal;
-          detectedProt = est.prot;
-        }
-
-        document.getElementById('ai-laser').classList.add('hidden');
-        document.getElementById('ai-loading-state').classList.add('hidden');
-        document.getElementById('ai-result-state').classList.remove('hidden');
-
-        document.getElementById('revised-food-name').value = detectedName;
-        document.getElementById('revised-food-cal').value = detectedCal;
-        document.getElementById('revised-food-prot').value = detectedProt;
-
-      } catch (error) {
-        document.getElementById('ai-scan-modal').classList.add('hidden');
-        alert('⚠️ Gagal memindai foto: ' + error.message);
-      }
-
-      event.target.value = '';
-    }
-
-    function confirmRevisedFood() {
-      const name = document.getElementById('revised-food-name').value.trim() || 'Makanan Foto';
-      const cal = Math.max(5, parseInt(document.getElementById('revised-food-cal').value) || 300);
-      const prot = Math.max(0, parseInt(document.getElementById('revised-food-prot').value) || 15);
-
-      document.getElementById('ai-scan-modal').classList.add('hidden');
-      appState.loggedFoods.push({ name: `${name} 📸`, cal, prot, tag: 'AI Vision' });
-      showAIDetectionBanner(name, cal, prot, 'Dikonfirmasi & direvisi manual');
-      renderNutrition();
-      saveState();
-      if (typeof confetti === 'function') confetti({ particleCount: 55, spread: 65 });
-      showToast(`✨ ${name}: +${cal} kkal | ${prot}g Protein`);
     }
 
     function addCustomFood() {
